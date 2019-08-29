@@ -2,15 +2,13 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 use App\User;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
 
-class AuthneticationTest extends TestCase
+class AuthenticationTest extends TestCase
 {
-    use DatabaseMigrations;
+    use DatabaseTransactions;
 
     protected function setUp(): void
     {
@@ -19,7 +17,7 @@ class AuthneticationTest extends TestCase
         $user = new User([
             'name' => 'daki',
             'email'    => 'test@email.com',
-            'password' => '123456'
+            'password' => '12345678'
         ]);
 
         $user->save();
@@ -31,7 +29,7 @@ class AuthneticationTest extends TestCase
         $response = $this->post('api/register', [
             'name' => 'new name',
             'email'    => 'test2@email.com',
-            'password' => '123456'
+            'password' => '12345678'
         ]);
 
         $response->assertJsonStructure([
@@ -46,7 +44,7 @@ class AuthneticationTest extends TestCase
     {
         $response = $this->post('api/login', [
             'email'    => 'test@email.com',
-            'password' => '123456'
+            'password' => '12345678'
         ]);
 
         $response->assertJsonStructure([
@@ -68,4 +66,33 @@ class AuthneticationTest extends TestCase
             'error',
         ]);
     }
+
+    /** @test */
+    public function it_wont_allow_user_without_token()
+    {
+        $response = $this->get('/api/user');
+        $response->assertStatus(401);
+    }
+
+    /** @test */
+    public function it_allows_user_with_token()
+    {
+        $responseToken = $this->post('/api/login', [
+            'email' => 'test@email.com',
+            'password' => '12345678'
+        ]);
+
+        $token =
+//            $responseToken->getContent();
+            'trash';
+
+        $response = $this->get('/api/user', [
+            'token' => $token
+        ]);
+
+        $response->assertStatus(200);
+    }
+
+
+
 }
