@@ -9,29 +9,19 @@ use App\User;
 class AuthenticationTest extends TestCase
 {
     use DatabaseTransactions;
+    private $user;
 
     protected function setUp(): void
     {
         parent::setUp();
-
-        $user = new User([
-            'name' => 'daki',
-            'email'    => 'test@email.com',
-            'password' => '12345678'
-        ]);
-
-        $user->save();
+        $this->user = factory(User::class)->create();
     }
 
     /** @test */
     public function it_will_register_a_user()
     {
-        $response = $this->post('api/register', [
-            'name' => 'new name',
-            'email'    => 'test2@email.com',
-            'password' => '12345678'
-        ]);
-
+        $user = factory(User::class)->make();
+        $response = $this->post('api/register', $user->toArray() + ['password' => 'password']);
         $response->assertJsonStructure([
             'access_token',
             'token_type',
@@ -43,8 +33,8 @@ class AuthenticationTest extends TestCase
     public function it_will_log_a_user_in()
     {
         $response = $this->post('api/login', [
-            'email'    => 'test@email.com',
-            'password' => '12345678'
+            'email' => $this->user->email,
+            'password' => 'password'
         ]);
 
         $response->assertJsonStructure([
@@ -58,7 +48,7 @@ class AuthenticationTest extends TestCase
     public function it_will_not_log_an_invalid_user_in()
     {
         $response = $this->post('api/login', [
-            'email'    => 'test@email.com',
+            'email' => $this->user->email,
             'password' => 'notlegitpassword'
         ]);
 
@@ -78,8 +68,8 @@ class AuthenticationTest extends TestCase
     public function it_allows_user_with_token()
     {
         $responseToken = $this->post('/api/login', [
-            'email' => 'test@email.com',
-            'password' => '12345678'
+            'email' => $this->user->email,
+            'password' => 'password'
         ]);
 
         $token =
@@ -91,7 +81,6 @@ class AuthenticationTest extends TestCase
 
         $response->assertStatus(200);
     }
-
 
 
 }
