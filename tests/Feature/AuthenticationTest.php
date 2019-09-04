@@ -83,8 +83,7 @@ class AuthenticationTest extends TestCase
         ]);
 
         $token =
-//            $responseToken->getContent();
-            'trash';
+            $responseToken->getContent();
 
         $response = $this->get('/api/user', [
             'token' => $token
