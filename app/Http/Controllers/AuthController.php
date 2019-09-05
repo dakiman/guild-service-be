@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\User;
 
 
-
 class AuthController extends Controller
 {
-    public function register(Request $request)
+    public function register(Request $request): JsonResponse
     {
         $request->validate([
             'name' => 'required|min:2|max:125',
@@ -19,7 +19,7 @@ class AuthController extends Controller
 
         $user = User::create([
             'name' => $request->name,
-            'email'    => $request->email,
+            'email' => $request->email,
             'password' => $request->password,
         ]);
 
@@ -28,7 +28,7 @@ class AuthController extends Controller
         return $this->respondWithToken($token);
     }
 
-    public function login()
+    public function login(): JsonResponse
     {
         request()->validate([
             'email' => 'required',
@@ -38,25 +38,25 @@ class AuthController extends Controller
         $credentials = request(['email', 'password']);
 
         if (!$token = auth()->attempt($credentials)) {
-            return response()->json(['error' => 'Your email or password is invalid.'], 401);
+            return response()->json(['error' => 'Invalid email or password entered.'], 401);
         }
 
         return $this->respondWithToken($token);
     }
 
-    public function logout()
+    public function logout(): JsonResponse
     {
         auth()->logout();
 
         return response()->json(['message' => 'Successfully logged out']);
     }
 
-    protected function respondWithToken($token)
+    private function respondWithToken($token): JsonResponse
     {
         return response()->json([
-            'access_token' => $token,
-            'token_type'   => 'bearer',
-            'expires_in'   => auth()->factory()->getTTL() * 60
+            'accessToken' => $token,
+            'tokenType' => 'bearer',
+            'expiresIn' => auth()->factory()->getTTL() * 60
         ]);
     }
 }

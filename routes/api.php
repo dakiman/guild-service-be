@@ -13,8 +13,10 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+Route::middleware('auth')->get('/user', function (Request $request) {
+    return response()->json([
+       'user' => \Auth::user()
+    ], 200);
 });
 
 Route::post('/register', 'AuthController@register');

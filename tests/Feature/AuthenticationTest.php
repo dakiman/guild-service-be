@@ -10,11 +10,17 @@ class AuthenticationTest extends TestCase
 {
     use DatabaseTransactions;
     private $user;
+    private $tokenJsonStructure;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->user = factory(User::class)->create();
+        $this->tokenJsonStructure = [
+            'accessToken',
+            'tokenType',
+            'expiresIn'
+        ];
     }
 
     /** @test */
@@ -22,11 +28,7 @@ class AuthenticationTest extends TestCase
     {
         $user = factory(User::class)->make();
         $response = $this->post('api/register', $user->toArray() + ['password' => 'password']);
-        $response->assertJsonStructure([
-            'access_token',
-            'token_type',
-            'expires_in'
-        ]);
+        $response->assertJsonStructure($this->tokenJsonStructure);
     }
 
     /** @test */
@@ -37,11 +39,7 @@ class AuthenticationTest extends TestCase
             'password' => 'password'
         ]);
 
-        $response->assertJsonStructure([
-            'access_token',
-            'token_type',
-            'expires_in'
-        ]);
+        $response->assertJsonStructure($this->tokenJsonStructure);
     }
 
     /** @test */
@@ -72,14 +70,14 @@ class AuthenticationTest extends TestCase
             'password' => 'password'
         ]);
 
-        $token =
-            $responseToken->getContent();
+        $token = $responseToken->getContent();
 
-        $response = $this->get('/api/user', [
-            'token' => $token
-        ]);
+        $response = $this
+            ->get('/api/user', ['Authorization' => 'Bearer ' . $token]);
 
-        $response->assertStatus(200);
+        $response
+            ->assertJson(['user' => $this->user->toArray()])
+            ->assertStatus(200);
     }
 
 
