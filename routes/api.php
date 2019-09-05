@@ -19,9 +19,9 @@ Route::middleware('auth')->get('/user', function (Request $request) {
     ], 200);
 });
 
-Route::post('/register', 'AuthController@register');
-Route::post('/login', 'AuthController@login');
-Route::post('/logout', 'AuthController@logout');
+Route::post('/register', 'Auth\AuthController@register');
+Route::post('/login', 'Auth\AuthController@login');
+Route::post('/logout', 'Auth\AuthController@logout');
 
 Route::post('/password/forgot', 'Auth\ForgotPasswordController')->name('password.forget');
 Route::post('/password/reset', 'Auth\ResetPasswordController@reset')->name('password.reset');

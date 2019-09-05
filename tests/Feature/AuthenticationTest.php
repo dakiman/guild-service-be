@@ -116,9 +116,11 @@ class AuthenticationTest extends TestCase
     public function it_resets_passwords()
     {
         Notification::fake();
+
         $user = factory(User::class)->create();
 
-        $this->post('api/password/forgot', ['email' => $user->email])
+        $this
+            ->post('api/password/forgot', ['email' => $user->email])
             ->assertStatus(200);
 
         $token = '';
