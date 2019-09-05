@@ -8,7 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\URL;
 
-class CustomResetPassword extends Notification
+class ResetPassword extends Notification
 {
     use Queueable;
     public $token;
