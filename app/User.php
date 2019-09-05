@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Notifications\CustomResetPassword;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -53,5 +54,10 @@ class User extends Authenticatable implements JWTSubject
         if (!empty($password)) {
             $this->attributes['password'] = bcrypt($password);
         }
+    }
+
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new CustomResetPassword($token));
     }
 }

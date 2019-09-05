@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Auth\Notifications\ResetPassword;
+use App\Notifications\CustomResetPassword;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Notification;
@@ -89,7 +89,7 @@ class AuthenticationTest extends TestCase
     public function it_sends_reset_password_email()
     {
         $user = factory(User::class)->create();
-        $this->expectsNotification($user, ResetPassword::class);
+        $this->expectsNotification($user, CustomResetPassword::class);
 
         $response = $this
             ->post('/api/password/forgot', ['email' => $user->email]);
@@ -123,7 +123,7 @@ class AuthenticationTest extends TestCase
 
         $token = '';
 
-        Notification::assertSentTo($user, ResetPassword::class,
+        Notification::assertSentTo($user, CustomResetPassword::class,
             function ($notification) use (&$token) {
                 $token = $notification->token;
                 return true;
