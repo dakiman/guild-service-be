@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Auth;
 
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\User;
 use App\Http\Controllers\Controller;
@@ -10,7 +9,7 @@ use App\Http\Controllers\Controller;
 
 class AuthController extends Controller
 {
-    public function register(Request $request): JsonResponse
+    public function register(Request $request)
     {
         $request->validate([
             'name' => 'required|min:2|max:125',
@@ -18,25 +17,21 @@ class AuthController extends Controller
             'password' => 'required|min:8'
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => $request->password,
-        ]);
+        $user = User::create($request->all());
 
         $token = auth()->login($user);
 
         return $this->respondWithToken($token);
     }
 
-    public function login(): JsonResponse
+    public function login(Request $request)
     {
-        request()->validate([
+        $request->validate([
             'email' => 'required',
             'password' => 'required'
         ]);
 
-        $credentials = request(['email', 'password']);
+        $credentials = $request->only(['email', 'password']);
 
         if (!$token = auth()->attempt($credentials)) {
             return response()->json(['error' => 'Invalid email or password entered.'], 401);
@@ -45,14 +40,14 @@ class AuthController extends Controller
         return $this->respondWithToken($token);
     }
 
-    public function logout(): JsonResponse
+    public function logout()
     {
         auth()->logout();
 
         return response()->json(['message' => 'Successfully logged out']);
     }
 
-    private function respondWithToken($token): JsonResponse
+    private function respondWithToken($token)
     {
         return response()->json([
             'accessToken' => $token,
