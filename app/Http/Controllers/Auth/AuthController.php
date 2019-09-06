@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Auth;
 use Illuminate\Http\Request;
 use App\User;
 use App\Http\Controllers\Controller;
+use Auth;
+use Response;
 
 
 class AuthController extends Controller
@@ -19,7 +21,7 @@ class AuthController extends Controller
 
         $user = User::create($request->all());
 
-        $token = auth()->login($user);
+        $token = Auth::login($user);
 
         return $this->respondWithToken($token);
     }
@@ -33,8 +35,8 @@ class AuthController extends Controller
 
         $credentials = $request->only(['email', 'password']);
 
-        if (!$token = auth()->attempt($credentials)) {
-            return response()->json(['error' => 'Invalid email or password entered.'], 401);
+        if (!$token = Auth::attempt($credentials)) {
+            return Response::json(['error' => 'Invalid email or password entered.'], 401);
         }
 
         return $this->respondWithToken($token);
@@ -49,10 +51,10 @@ class AuthController extends Controller
 
     private function respondWithToken($token)
     {
-        return response()->json([
+        return Response::json([
             'accessToken' => $token,
             'tokenType' => 'bearer',
-            'expiresIn' => auth()->factory()->getTTL() * 60
+            'expiresIn' => Auth::factory()->getTTL() * 60
         ]);
     }
 }
