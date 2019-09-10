@@ -5,7 +5,8 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Password;
+use Password;
+use Response;
 
 class ForgotPasswordController extends Controller
 {
@@ -37,7 +38,7 @@ class ForgotPasswordController extends Controller
             $request->only('email')
         );
         return $response == Password::RESET_LINK_SENT
-            ? response()->json(['message' => 'Reset link sent to your email.', 'status' => true], 200)
-            : response()->json(['message' => 'Unable to send reset link', 'status' => false], 400);
+            ? Response::json(['message' => 'Reset link sent to your email.', 'status' => true], 200)
+            : Response::json(['message' => 'Unable to send reset link', 'status' => false], 400);
     }
 }

@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers\Auth;
 
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\User;
 use App\Http\Controllers\Controller;
+use Auth;
+use Response;
 
 
 class AuthController extends Controller
 {
-    public function register(Request $request): JsonResponse
+    public function register(Request $request)
     {
         $request->validate([
             'name' => 'required|min:2|max:125',
@@ -18,46 +19,42 @@ class AuthController extends Controller
             'password' => 'required|min:8'
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => $request->password,
-        ]);
+        $user = User::create($request->all());
 
-        $token = auth()->login($user);
+        $token = Auth::login($user);
 
         return $this->respondWithToken($token);
     }
 
-    public function login(): JsonResponse
+    public function login(Request $request)
     {
-        request()->validate([
+        $request->validate([
             'email' => 'required',
             'password' => 'required'
         ]);
 
-        $credentials = request(['email', 'password']);
+        $credentials = $request->only(['email', 'password']);
 
-        if (!$token = auth()->attempt($credentials)) {
-            return response()->json(['error' => 'Invalid email or password entered.'], 401);
+        if (!$token = Auth::attempt($credentials)) {
+            return Response::json(['error' => 'Invalid email or password entered.'], 401);
         }
 
         return $this->respondWithToken($token);
     }
 
-    public function logout(): JsonResponse
+    public function logout()
     {
-        auth()->logout();
+        Auth::logout();
 
-        return response()->json(['message' => 'Successfully logged out']);
+        return Response::json(['message' => 'Successfully logged out']);
     }
 
-    private function respondWithToken($token): JsonResponse
+    private function respondWithToken($token)
     {
-        return response()->json([
+        return Response::json([
             'accessToken' => $token,
             'tokenType' => 'bearer',
-            'expiresIn' => auth()->factory()->getTTL() * 60
+            'expiresIn' => Auth::factory()->getTTL() * 60
         ]);
     }
 }
