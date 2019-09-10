@@ -3,15 +3,16 @@
 namespace Tests\Feature;
 
 use App\Notifications\ResetPassword;
+use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Facades\Notification;
+use Notification;
 use Tests\TestCase;
-use App\User;
 
 class AuthenticationTest extends TestCase
 {
     use DatabaseTransactions, WithFaker;
+    /** @var User */
     private $user;
     private $tokenJsonStructure;
 
