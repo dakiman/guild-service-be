@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Str;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -14,9 +15,14 @@ class AppServiceProvider extends ServiceProvider
     public function register()
     {
         \Schema::defaultStringLength(191);
+
         if ($this->app->environment() !== 'production') {
             $this->app->register(\Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class);
         }
+
+        Str::macro('deslug', function ($string) {
+            return ucwords(str_replace('-', ' ', $string), ' ');
+        });
     }
 
     /**
