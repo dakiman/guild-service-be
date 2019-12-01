@@ -2,19 +2,16 @@
 
 namespace App\Services;
 
-use GuzzleHttp\Client;
+use App\Services\Blizzard\BlizzardDataClient;
 use Illuminate\Support\Str;
 
-class BlizzardDataService
+class GuildService
 {
-    private $client;
+    private $dataClient;
 
-    public function __construct(BlizzardAuthenticationService $blizzardAuthenticationService)
+    public function __construct(BlizzardDataClient $dataClient)
     {
-        $this->client = new Client([
-            'headers' => ['Authorization' => 'Bearer ' . $blizzardAuthenticationService->retrieveToken()],
-            'base_uri' => 'https://eu.api.blizzard.com/data/wow/'
-        ]);
+        $this->dataClient = $dataClient;
     }
 
     public function getGuild(string $realmName, string $guildName)
@@ -32,8 +29,8 @@ class BlizzardDataService
 
     private function getRoster(string $realmName, string $guildName)
     {
-        $responseRoster = $this->client->get("guild/$realmName/$guildName/roster?namespace=profile-eu&locale=en_EU");
-        $roster = json_decode($responseRoster->getBody());
+        $response = $this->dataClient->getGuildRoster($realmName, $guildName);
+        $roster = json_decode($response->getBody());
 
         $guildMembers = collect($roster->members)
             ->map(function ($member) {
@@ -53,8 +50,8 @@ class BlizzardDataService
 
     private function getAchievements(string $realmName, string $guildName)
     {
-        $responseAchievements = $this->client->get("guild/$realmName/$guildName/achievements?namespace=profile-eu&locale=en_EU");
-        $achievements = json_decode($responseAchievements->getBody());
+        $response = $this->dataClient->getGuildAchievements($realmName, $guildName);
+        $achievements = json_decode($response->getBody());
 
         $guildAchievements = collect($achievements->achievements)
             ->map(function ($achievement) {

@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::get('/guild/{realm}/{guild}', 'BlizzardController@guild');
+Route::get('/guild/{realm}/{guild}', 'GuildController@guild');
 
 Route::middleware('auth')->get('/user', function (Request $request) {
     return response()->json([
