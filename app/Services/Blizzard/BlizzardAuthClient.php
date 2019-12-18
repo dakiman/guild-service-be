@@ -5,20 +5,41 @@ namespace App\Services\Blizzard;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Support\Str;
+use Symfony\Component\Routing\Exception\NoConfigurationException;
 
 class BlizzardAuthClient
 {
+    private string $client_id;
+    private string $client_secret;
+    private string $oauth_url;
+
+    public function __construct()
+    {
+        $this->client_id = config('blizzard.client.id');
+        $this->client_secret = config('blizzard.client.secret');
+        $this->oauth_url = config('blizzard.oauth.url', null);
+
+        if (empty($this->client_id) ||
+            empty($this->client_secret)) {
+            throw new \BlizzardServiceException('Blizzard client id/secret not found.', 500);
+        }
+
+        if (empty($this->oauth_url)) {
+            throw new \BlizzardServiceException('Blizzard OAuth URL not found.', 500);
+        }
+    }
 
     public function retrieveToken(): string
     {
         $token = cache('token');
 
+        /*If the token is not in the cache, go and retrieve it from blizzard services*/
         if (empty($token)) {
             $client = new Client([
-                'auth' => [env('BLIZZARD_CLIENT_ID'), env('BLIZZARD_CLIENT_SECRET')],
+                'auth' => [$this->client_id, $this->client_secret],
             ]);
 
-            $response = $client->post('https://us.battle.net/oauth/token', [
+            $response = $client->post(config('blizzard.oauth.url'), [
                 'form_params' => ['grant_type' => 'client_credentials'],
             ]);
 

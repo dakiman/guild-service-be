@@ -9,12 +9,10 @@
 namespace App\Services\Blizzard;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Psr7\Response;
 
 class BlizzardDataClient
 {
-    /** @var Client */
-    private $client;
+    private Client $client;
 
     public function __construct(BlizzardAuthClient $authClient)
     {
@@ -28,12 +26,12 @@ class BlizzardDataClient
         ]);
     }
 
-    public function getGuildRoster(string $realmName, string $guildName): Response
+    public function getGuildRoster(string $realmName, string $guildName)
     {
         return $this->client->get("guild/$realmName/$guildName/roster");
     }
 
-    public function getGuildAchievements(string $realmName, string $guildName): Response
+    public function getGuildAchievements(string $realmName, string $guildName)
     {
         return $this->client->get("guild/$realmName/$guildName/achievements");
     }

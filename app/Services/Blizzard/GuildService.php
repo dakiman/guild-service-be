@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 
 class GuildService
 {
-    private $dataClient;
+    private BlizzardDataClient $dataClient;
 
     public function __construct(BlizzardDataClient $dataClient)
     {

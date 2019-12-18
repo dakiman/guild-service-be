@@ -47,6 +47,11 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
+        if($exception instanceof \ApiException) {
+            return response()->json([
+                'message' => $exception->getMessage(),
+            ], $exception->getStatusCode() ?? 500);
+        }
         return parent::render($request, $exception);
     }
 
