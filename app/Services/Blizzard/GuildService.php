@@ -2,16 +2,16 @@
 
 namespace App\Services;
 
-use App\Services\Blizzard\BlizzardDataClient;
+use App\Services\Blizzard\BlizzardProfileClient;
 use Illuminate\Support\Str;
 
 class GuildService
 {
-    private BlizzardDataClient $dataClient;
+    private BlizzardProfileClient $profileClient;
 
-    public function __construct(BlizzardDataClient $dataClient)
+    public function __construct(BlizzardProfileClient $profileClient)
     {
-        $this->dataClient = $dataClient;
+        $this->profileClient = $profileClient;
     }
 
     public function getGuild(string $realmName, string $guildName)
@@ -29,7 +29,7 @@ class GuildService
 
     private function getRoster(string $realmName, string $guildName)
     {
-        $response = $this->dataClient->getGuildRoster($realmName, $guildName);
+        $response = $this->profileClient->getGuildRoster($realmName, $guildName);
         $roster = json_decode($response->getBody());
 
         $guildMembers = collect($roster->members)
@@ -50,7 +50,7 @@ class GuildService
 
     private function getAchievements(string $realmName, string $guildName)
     {
-        $response = $this->dataClient->getGuildAchievements($realmName, $guildName);
+        $response = $this->profileClient->getGuildAchievements($realmName, $guildName);
         $achievements = json_decode($response->getBody());
 
         $guildAchievements = collect($achievements->achievements)

@@ -3,9 +3,6 @@
 namespace App\Services\Blizzard;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Psr7\Response;
-use Illuminate\Support\Str;
-use Symfony\Component\Routing\Exception\NoConfigurationException;
 
 class BlizzardAuthClient
 {
@@ -39,7 +36,7 @@ class BlizzardAuthClient
                 'auth' => [$this->client_id, $this->client_secret],
             ]);
 
-            $response = $client->post(config('blizzard.oauth.url'), [
+            $response = $client->post($this->oauth_url, [
                 'form_params' => ['grant_type' => 'client_credentials'],
             ]);
 

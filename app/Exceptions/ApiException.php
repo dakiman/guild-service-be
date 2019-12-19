@@ -2,7 +2,7 @@
 
 class ApiException extends Exception {
     protected int $statusCode = 500;
-    protected $message = "Something went wrong...";
+    protected string $message = "Something went wrong...";
 
     public function getStatusCode()
     {

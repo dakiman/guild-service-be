@@ -6,7 +6,7 @@ use App\Services\GuildService;
 
 class GuildController extends Controller
 {
-    private $guildService;
+    private GuildService $guildService;
 
     public function __construct(GuildService $guildService)
     {

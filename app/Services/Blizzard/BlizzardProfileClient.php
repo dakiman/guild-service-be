@@ -10,7 +10,7 @@ namespace App\Services\Blizzard;
 
 use GuzzleHttp\Client;
 
-class BlizzardDataClient
+class BlizzardProfileClient
 {
     private Client $client;
 
