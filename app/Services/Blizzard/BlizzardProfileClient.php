@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Daki
- * Date: 12/1/2019
- * Time: 7:42 PM
- */
 
 namespace App\Services\Blizzard;
 

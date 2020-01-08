@@ -58,10 +58,10 @@ class GuildService
                 return [
                     'id' => $achievement->id,
                     'name' => $achievement->achievement->name,
-                    'criteria' => [
-                        'id' => $achievement->criteria->id,
-                        'completed' => $achievement->criteria->is_completed
-                    ],
+//                    'criteria' => [
+//                        'id' => $achievement->criteria->id,
+//                        'completed' => $achievement->criteria->is_completed
+//                    ],
                     'completedAt' => $achievement->completed_timestamp ?? null
                 ];
             });

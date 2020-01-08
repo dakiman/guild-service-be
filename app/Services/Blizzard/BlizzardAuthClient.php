@@ -2,6 +2,7 @@
 
 namespace App\Services\Blizzard;
 
+use App\Exceptions\BlizzardServiceException;
 use GuzzleHttp\Client;
 
 class BlizzardAuthClient
@@ -18,11 +19,11 @@ class BlizzardAuthClient
 
         if (empty($this->client_id) ||
             empty($this->client_secret)) {
-            throw new \BlizzardServiceException('Blizzard client id/secret not found.', 500);
+            throw new BlizzardServiceException('Blizzard client id/secret not found.', 500);
         }
 
         if (empty($this->oauth_url)) {
-            throw new \BlizzardServiceException('Blizzard OAuth URL not found.', 500);
+            throw new BlizzardServiceException('Blizzard OAuth URL not found.', 500);
         }
     }
 
