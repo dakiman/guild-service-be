@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Schema;
@@ -25,6 +26,11 @@ class AppServiceProvider extends ServiceProvider
         Str::macro('deslug', function ($string) {
             return ucwords(str_replace('-', ' ', $string), ' ');
         });
+
+        /*TODO Reconsider implementation*/
+        if(!empty(request('locale'))) {
+            Config::set('locale', request('locale'));
+        }
     }
 
     /**

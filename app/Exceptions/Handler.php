@@ -3,6 +3,7 @@
 namespace App\Exceptions;
 
 use Exception;
+use GuzzleHttp\Exception\BadResponseException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
@@ -39,6 +40,13 @@ class Handler extends ExceptionHandler
                 'message' => $exception->getMessage(),
             ], $exception->getStatusCode() ?? 500);
         }
+
+        if($exception instanceof BadResponseException) {
+            return response()->json([
+               'message' => 'There was an error contacting external services'
+            ], 500);
+        }
+
         return parent::render($request, $exception);
     }
 

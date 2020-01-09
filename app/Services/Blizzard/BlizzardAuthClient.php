@@ -3,7 +3,9 @@
 namespace App\Services\Blizzard;
 
 use App\Exceptions\BlizzardServiceException;
+use Exception;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
 
 class BlizzardAuthClient
 {
@@ -37,9 +39,13 @@ class BlizzardAuthClient
                 'auth' => [$this->client_id, $this->client_secret],
             ]);
 
-            $response = $client->post($this->oauth_url, [
-                'form_params' => ['grant_type' => 'client_credentials'],
-            ]);
+            try {
+                $response = $client->post($this->oauth_url, [
+                    'form_params' => ['grant_type' => 'client_credentials'],
+                ]);
+            } catch (Exception $e) {
+                throw new BlizzardServiceException('Couldnt retrieve token for communication with Blizzard services.', 500);
+            }
 
             $responseBody = json_decode($response->getBody());
 

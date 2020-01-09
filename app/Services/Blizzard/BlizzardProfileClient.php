@@ -2,7 +2,9 @@
 
 namespace App\Services\Blizzard;
 
+use App\Exceptions\BlizzardServiceException;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\BadResponseException;
 
 class BlizzardProfileClient
 {
@@ -12,22 +14,30 @@ class BlizzardProfileClient
     {
         $this->client = new Client([
             'headers' => ['Authorization' => 'Bearer ' . $authClient->retrieveToken() ],
-            'base_uri' => 'https://eu.api.blizzard.com/data/wow/',
+            'base_uri' => 'https://' . strtolower(config('locale')) .'.api.blizzard.com/data/wow/',
             'query' => [
-                'namespace' => 'profile-eu',
-                'locale' => 'en_EU'
+                'namespace' => 'profile-' . strtolower(config('locale')),
+                'locale' => 'en_' . strtoupper(config('locale'))
             ]
         ]);
     }
 
     public function getGuildRoster(string $realmName, string $guildName)
     {
-        return $this->client->get("guild/$realmName/$guildName/roster");
+        try {
+            return $this->client->get("guild/$realmName/$guildName/roster");
+        } catch (BadResponseException $e) {
+            throw new BlizzardServiceException('Couldnt retrieve guild with status ' . $e->getResponse()->getStatusCode());
+        }
     }
 
     public function getGuildAchievements(string $realmName, string $guildName)
     {
-        return $this->client->get("guild/$realmName/$guildName/achievements");
+        try {
+            return $this->client->get("guild/$realmName/$guildName/achievements");
+        } catch (BadResponseException $e) {
+            throw new BlizzardServiceException('Couldnt retrieve guild achievements with status ' . $e->getResponse()->getStatusCode());
+        }
     }
 
 }
