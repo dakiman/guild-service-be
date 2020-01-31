@@ -18,12 +18,9 @@ class GuildService
         $realmName = Str::slug($realmName);
         $guildName = Str::slug($guildName);
 
-        $data = [
-            'guild' => $this->getGuild($realmName, $guildName)
-        ];
-
-        $data['guild']['roster'] = $this->getRoster($realmName, $guildName);
-        $data['guild']['achievements'] = $this->getAchievements($realmName, $guildName);
+        $data = $this->getGuild($realmName, $guildName);
+        $data['roster'] = $this->getRoster($realmName, $guildName);
+        $data['achievements'] = $this->getAchievements($realmName, $guildName);
 
         return $data;
     }
@@ -33,9 +30,7 @@ class GuildService
         $realmName = Str::slug($realmName);
         $guildName = Str::slug($guildName);
 
-        return [
-            'guild' => $this->getGuild($realmName, $guildName)
-        ];
+        return $this->getGuild($realmName, $guildName);
     }
 
     private function getGuild(string $realmName, string $guildName): array
@@ -54,7 +49,7 @@ class GuildService
         ];
     }
 
-    private function getRoster(string $realmName, string $guildName): array
+    private function getRoster(string $realmName, string $guildName)
     {
         $response = $this->profileClient->getGuildRoster($realmName, $guildName);
         $data = json_decode($response->getBody());
@@ -70,10 +65,10 @@ class GuildService
                     'race' => $character->playable_race->id,
                     'rank' => $member->rank
                 ];
-            })->toArray();
+            });
     }
 
-    private function getAchievements(string $realmName, string $guildName): array
+    private function getAchievements(string $realmName, string $guildName)
     {
         $response = $this->profileClient->getGuildAchievements($realmName, $guildName);
         $data = json_decode($response->getBody());
@@ -89,7 +84,7 @@ class GuildService
 //                    ],
                     'completedAt' => $achievement->completed_timestamp ?? null
                 ];
-            })->toArray();
+            });
     }
 
 }
