@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Blizzard;
 
-use App\Services\Blizzard\BlizzardProfileClient;
 use Illuminate\Support\Str;
 
 class GuildService
@@ -14,7 +13,7 @@ class GuildService
         $this->profileClient = $profileClient;
     }
 
-    public function getGuild(string $realmName, string $guildName)
+    public function getFullGuildInfo(string $realmName, string $guildName)
     {
         $realmName = Str::slug($realmName);
         $guildName = Str::slug($guildName);
@@ -27,12 +26,33 @@ class GuildService
         ];
     }
 
+    public function getBasicGuildInfo(string $realmName, string $guildName)
+    {
+        $realmName = Str::slug($realmName);
+        $guildName = Str::slug($guildName);
+
+        $response = $this->profileClient->getGuildBasicInfo($realmName, $guildName);
+        $data = json_decode($response->getBody());
+
+        return [
+            'guild' => [
+                'id' => $data->id,
+                'name' => $data->name,
+                'faction' => ucfirst(Str::lower($data->faction->type)),
+                'achievementPoints' => $data->achievement_points,
+                'memberCount' => $data->member_count,
+                'realm' => Str::deslug($data->realm->slug),
+                'created' => $data->created_timestamp
+            ]
+        ];
+    }
+
     private function getRoster(string $realmName, string $guildName)
     {
         $response = $this->profileClient->getGuildRoster($realmName, $guildName);
-        $roster = json_decode($response->getBody());
+        $data = json_decode($response->getBody());
 
-        $guildMembers = collect($roster->members)
+        return collect($data->members)
             ->map(function ($member) {
                 $character = $member->character;
                 return [
@@ -44,16 +64,14 @@ class GuildService
                     'rank' => $member->rank
                 ];
             });
-
-        return $guildMembers;
     }
 
     private function getAchievements(string $realmName, string $guildName)
     {
         $response = $this->profileClient->getGuildAchievements($realmName, $guildName);
-        $achievements = json_decode($response->getBody());
+        $responseBody = json_decode($response->getBody());
 
-        $guildAchievements = collect($achievements->achievements)
+        return collect($responseBody->achievements)
             ->map(function ($achievement) {
                 return [
                     'id' => $achievement->id,
@@ -65,8 +83,6 @@ class GuildService
                     'completedAt' => $achievement->completed_timestamp ?? null
                 ];
             });
-
-        return $guildAchievements;
     }
 
 }

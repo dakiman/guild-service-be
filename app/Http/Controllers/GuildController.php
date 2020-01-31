@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\BlizzardServiceException;
-use App\Services\GuildService;
+use App\Services\Blizzard\GuildService;
 
 class GuildController extends Controller
 {
@@ -18,9 +18,15 @@ class GuildController extends Controller
         $this->guildService = $guildService;
     }
 
-    public function guild($realm, $guild)
+    public function guildFull($realm, $guild)
     {
-        $guild = $this->guildService->getGuild($realm, $guild);
+        $guild = $this->guildService->getFullGuildInfo($realm, $guild);
+        return response()->json($guild, 200);
+    }
+
+    public function guildBasic($realm, $guild)
+    {
+        $guild = $this->guildService->getBasicGuildInfo($realm, $guild);
         return response()->json($guild, 200);
     }
 

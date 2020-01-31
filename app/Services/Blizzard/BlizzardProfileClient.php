@@ -22,6 +22,15 @@ class BlizzardProfileClient
         ]);
     }
 
+    public function getGuildBasicInfo(string $realmName, string $guildName)
+    {
+        try {
+            return $this->client->get("guild/$realmName/$guildName");
+        } catch (BadResponseException $e) {
+            throw new BlizzardServiceException('Couldnt retrieve guild with status ' . $e->getResponse()->getStatusCode());
+        }
+    }
+
     public function getGuildRoster(string $realmName, string $guildName)
     {
         try {
