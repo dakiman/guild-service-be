@@ -5,7 +5,6 @@ namespace App\Services\Blizzard;
 use App\Exceptions\BlizzardServiceException;
 use Exception;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
 
 class BlizzardAuthClient
 {
