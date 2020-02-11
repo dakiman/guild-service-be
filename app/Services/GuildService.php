@@ -8,9 +8,9 @@ class GuildService
 {
     private BlizzardProfileClient $profileClient;
 
-    public function __construct(BlizzardProfileClient $profileClient)
+    public function __construct($locale)
     {
-        $this->profileClient = $profileClient;
+        $this->profileClient = app()->make(BlizzardProfileClient::class, ['locale' => $locale]);
     }
 
     public function getFullGuildInfo(string $realmName, string $guildName)

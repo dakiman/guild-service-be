@@ -9,6 +9,14 @@ return [
 
     'oauth' => [
         'url' => "https://eu.battle.net/oauth/token"
+    ],
+
+    'api' => [
+        'url' => "https://{locale}.api.blizzard.com/data/wow/"
+    ],
+
+    'regions' => [
+        'EU', 'US', 'AU', 'CH'
     ]
 
 ];

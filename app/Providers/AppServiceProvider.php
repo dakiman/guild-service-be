@@ -26,11 +26,6 @@ class AppServiceProvider extends ServiceProvider
         Str::macro('deslug', function ($string) {
             return ucwords(str_replace('-', ' ', $string), ' ');
         });
-
-        /*TODO Reconsider implementation*/
-        if(!empty(request('locale'))) {
-            Config::set('locale', request('locale'));
-        }
     }
 
     /**

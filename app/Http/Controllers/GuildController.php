@@ -2,20 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Exceptions\BlizzardServiceException;
 use App\Services\Blizzard\GuildService;
+use Illuminate\Validation\Rule;
 
 class GuildController extends Controller
 {
     private GuildService $guildService;
 
-    public function __construct(GuildService $guildService)
+    public function __construct()
     {
-        if (empty(request('locale'))) {
-            throw new BlizzardServiceException('Cant call blizzard services without providing locale ', 400);
-        }
+        request()->validate([
+            'locale' => [
+                'required',
+                Rule::in(array_merge(array_map("strtolower", config('blizzard.regions')), config('blizzard.regions')))
+            ]
+        ]);
 
-        $this->guildService = $guildService;
+        $this->guildService = app()->make(GuildService::class, ['locale' => request('locale')]);
     }
 
     public function guildFull($realm, $guild)

@@ -10,14 +10,17 @@ class BlizzardProfileClient
 {
     private Client $client;
 
-    public function __construct(BlizzardAuthClient $authClient)
+    public function __construct(BlizzardAuthClient $authClient, $locale)
     {
+        $locale = strtolower($locale);
+        $apiUrl = str_replace('{locale}', $locale, config('blizzard.api.url'));
+
         $this->client = new Client([
-            'headers' => ['Authorization' => 'Bearer ' . $authClient->retrieveToken() ],
-            'base_uri' => 'https://' . strtolower(config('locale')) .'.api.blizzard.com/data/wow/',
+            'headers' => ['Authorization' => 'Bearer ' . $authClient->retrieveToken()],
+            'base_uri' => $apiUrl,
             'query' => [
-                'namespace' => 'profile-' . strtolower(config('locale')),
-                'locale' => 'en_' . strtoupper(config('locale'))
+                'namespace' => 'profile-' . $locale,
+                'locale' => 'en_' . $locale
             ]
         ]);
     }
