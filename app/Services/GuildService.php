@@ -18,24 +18,17 @@ class GuildService
         $realmName = Str::slug($realmName);
         $guildName = Str::slug($guildName);
 
-        $data = $this->getGuild($realmName, $guildName);
-        $data['roster'] = $this->getRoster($realmName, $guildName);
-        $data['achievements'] = $this->getAchievements($realmName, $guildName);
+        $responses = $this->profileClient->getGuildInfo($realmName, $guildName);
+
+        $data = $this->getGuild($responses['basic']);
+        $data['roster'] = $this->getRoster($responses['roster']);
+        $data['achievements'] = $this->getAchievements($responses['achievements']);
 
         return $data;
     }
 
-    public function getBasicGuildInfo(string $realmName, string $guildName): array
+    private function getGuild($response): array
     {
-        $realmName = Str::slug($realmName);
-        $guildName = Str::slug($guildName);
-
-        return $this->getGuild($realmName, $guildName);
-    }
-
-    private function getGuild(string $realmName, string $guildName): array
-    {
-        $response = $this->profileClient->getGuildBasicInfo($realmName, $guildName);
         $guild = json_decode($response->getBody());
 
         return [
@@ -49,9 +42,8 @@ class GuildService
         ];
     }
 
-    private function getRoster(string $realmName, string $guildName)
+    private function getRoster($response)
     {
-        $response = $this->profileClient->getGuildRoster($realmName, $guildName);
         $data = json_decode($response->getBody());
 
         return collect($data->members)
@@ -68,9 +60,8 @@ class GuildService
             });
     }
 
-    private function getAchievements(string $realmName, string $guildName)
+    private function getAchievements($response)
     {
-        $response = $this->profileClient->getGuildAchievements($realmName, $guildName);
         $data = json_decode($response->getBody());
 
         return collect($data->achievements)

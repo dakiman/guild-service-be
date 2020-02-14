@@ -21,15 +21,9 @@ class GuildController extends Controller
         $this->guildService = app(GuildService::class, ['locale' => request('locale')]);
     }
 
-    public function guildFull($realm, $guild)
+    public function guild($realm, $guild)
     {
         $guild = $this->guildService->getFullGuildInfo($realm, $guild);
-        return response()->json(['guild' => $guild], 200);
-    }
-
-    public function guildBasic($realm, $guild)
-    {
-        $guild = $this->guildService->getBasicGuildInfo($realm, $guild);
         return response()->json(['guild' => $guild], 200);
     }
 

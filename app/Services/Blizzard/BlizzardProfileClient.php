@@ -4,7 +4,7 @@ namespace App\Services\Blizzard;
 
 use App\Exceptions\BlizzardServiceException;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\BadResponseException;
+use GuzzleHttp\Promise;
 
 class BlizzardProfileClient
 {
@@ -25,48 +25,32 @@ class BlizzardProfileClient
         ]);
     }
 
-    public function getGuildBasicInfo(string $realmName, string $guildName)
+    public function getGuildInfo(string $realmName, string $guildName): array
     {
+        $promises = [
+            'basic' => $this->client->getAsync("/data/wow/guild/$realmName/$guildName"),
+            'roster' => $this->client->getAsync("/data/wow/guild/$realmName/$guildName/roster"),
+            'achievements' => $this->client->getAsync("/data/wow/guild/$realmName/$guildName/achievements")
+        ];
+
         try {
-            return $this->client->get("/data/wow/guild/$realmName/$guildName");
-        } catch (BadResponseException $e) {
-            throw new BlizzardServiceException('Couldnt retrieve guild with status ' . $e->getResponse()->getStatusCode());
+            return Promise\unwrap($promises);
+        } catch (\Exception $e) {
+            throw new BlizzardServiceException('Couldnt retrieve guild', $e);
         }
     }
 
-    public function getGuildRoster(string $realmName, string $guildName)
+    public function getCharacterInfo(string $realmName, string $characterName)
     {
-        try {
-            return $this->client->get("/data/wow/guild/$realmName/$guildName/roster");
-        } catch (BadResponseException $e) {
-            throw new BlizzardServiceException('Couldnt retrieve guild with status ' . $e->getResponse()->getStatusCode());
-        }
-    }
+        $promises = [
+            'basic' => $this->client->getAsync("/profile/wow/character/$realmName/$characterName"),
+            'media' => $this->client->getAsync("/profile/wow/character/$realmName/$characterName/character-media")
+        ];
 
-    public function getGuildAchievements(string $realmName, string $guildName)
-    {
         try {
-            return $this->client->get("/data/wow/guild/$realmName/$guildName/achievements");
-        } catch (BadResponseException $e) {
-            throw new BlizzardServiceException('Couldnt retrieve guild achievements with status ' . $e->getResponse()->getStatusCode());
-        }
-    }
-
-    public function getCharacterBasicInfo(string $realmName, string $characterName)
-    {
-        try {
-            return $this->client->get("/profile/wow/character/$realmName/$characterName");
-        } catch (BadResponseException $e) {
-            throw new BlizzardServiceException('Couldnt retrieve character data with status ' . $e->getResponse()->getStatusCode());
-        }
-    }
-
-    public function getCharacterMedia(string $realmName, string $characterName)
-    {
-        try {
-            return $this->client->get("/profile/wow/character/$realmName/$characterName/character-media");
-        } catch (BadResponseException $e) {
-            throw new BlizzardServiceException('Couldnt retrieve character data with status ' . $e->getResponse()->getStatusCode());
+            return Promise\unwrap($promises);
+        } catch (\Exception $e) {
+            throw new BlizzardServiceException('Couldnt retrieve character', $e);
         }
     }
 

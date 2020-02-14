@@ -16,16 +16,19 @@ class CharacterService
         $this->profileClient = app(BlizzardProfileClient::class, ['locale' => $locale]);
     }
 
-    public function getBasicCharacterInfo(string $realmName, string $characterInfo): array
+    public function getBasicCharacterInfo(string $realmName, string $characterName): array
     {
         $realmName = Str::slug($realmName);
 
-        return $this->getCharacter($realmName, $characterInfo) + $this->getCharacterMedia($realmName, $characterInfo);
+        $responses = $this->profileClient->getCharacterInfo($realmName, $characterName);
+
+        $data = $this->getCharacter($responses['basic']);
+        $data['media'] = $this->getCharacterMedia($responses['media']);
+        return $data;
     }
 
-    private function getCharacter(string $realmName, string $characterName): array
+    private function getCharacter($response): array
     {
-        $response = $this->profileClient->getCharacterBasicInfo($realmName, $characterName);
         $character = json_decode($response->getBody());
 
         return [
@@ -48,17 +51,14 @@ class CharacterService
         ];
     }
 
-    private function getCharacterMedia(string $realmName, string $characterName): array
+    private function getCharacterMedia($response): array
     {
-        $response = $this->profileClient->getCharacterMedia($realmName, $characterName);
         $media = json_decode($response->getBody());
 
         return [
-            'media' => [
-                'avatar' => $media->avatar_url,
-                'bust' => $media->bust_url,
-                'render' => $media->render_url
-            ]
+            'avatar' => $media->avatar_url,
+            'bust' => $media->bust_url,
+            'render' => $media->render_url
         ];
     }
 }

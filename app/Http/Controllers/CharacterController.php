@@ -21,7 +21,7 @@ class CharacterController extends Controller
         $this->characterService = app()->make(CharacterService::class, ['locale' => request('locale')]);
     }
 
-    public function characterBasic(string $realm, string $characterName)
+    public function character(string $realm, string $characterName)
     {
         $character = $this->characterService->getBasicCharacterInfo($realm, $characterName);
         return response()->json(['character' => $character], 200);

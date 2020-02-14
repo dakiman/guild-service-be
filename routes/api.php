@@ -13,13 +13,12 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::get('/guild/{realm}/{guild}/full', 'GuildController@guildFull');
-Route::get('/guild/{realm}/{guild}/basic', 'GuildController@guildBasic');
-Route::get('/character/{realm}/{character}/basic', 'CharacterController@characterBasic');
+Route::get('/guild/{realm}/{guild}', 'GuildController@guild');
+Route::get('/character/{realm}/{character}', 'CharacterController@character');
 
 Route::middleware('auth')->get('/user', function (Request $request) {
     return response()->json([
-       'user' => \Auth::user()
+        'user' => \Auth::user()
     ], 200);
 });
 

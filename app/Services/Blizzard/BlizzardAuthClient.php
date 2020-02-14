@@ -20,11 +20,7 @@ class BlizzardAuthClient
 
         if (empty($this->clientId) ||
             empty($this->clientSecret)) {
-            throw new BlizzardServiceException('Blizzard client id/secret not found.', 500);
-        }
-
-        if (empty($this->oauthUrl)) {
-            throw new BlizzardServiceException('Blizzard OAuth URL not found.', 500);
+            throw new BlizzardServiceException('Blizzard client id/secret not found.');
         }
     }
 
@@ -43,7 +39,7 @@ class BlizzardAuthClient
                     'form_params' => ['grant_type' => 'client_credentials'],
                 ]);
             } catch (Exception $e) {
-                throw new BlizzardServiceException('Couldnt retrieve token for communication with Blizzard services.', 500);
+                throw new BlizzardServiceException('Couldnt retrieve token for communication with Blizzard services.', $e);
             }
 
             $responseBody = json_decode($response->getBody());
