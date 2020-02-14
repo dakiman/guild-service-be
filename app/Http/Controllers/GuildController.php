@@ -18,7 +18,7 @@ class GuildController extends Controller
             ]
         ]);
 
-        $this->guildService = app()->make(GuildService::class, ['locale' => request('locale')]);
+        $this->guildService = app(GuildService::class, ['locale' => request('locale')]);
     }
 
     public function guildFull($realm, $guild)

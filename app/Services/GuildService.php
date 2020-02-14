@@ -10,7 +10,7 @@ class GuildService
 
     public function __construct($locale)
     {
-        $this->profileClient = app()->make(BlizzardProfileClient::class, ['locale' => $locale]);
+        $this->profileClient = app(BlizzardProfileClient::class, ['locale' => $locale]);
     }
 
     public function getFullGuildInfo(string $realmName, string $guildName)
@@ -41,7 +41,7 @@ class GuildService
         return [
             'id' => $data->id,
             'name' => $data->name,
-            'faction' => ucfirst(Str::lower($data->faction->type)),
+            'faction' => ucfirst(strtolower($data->faction->type)),
             'achievementPoints' => $data->achievement_points,
             'memberCount' => $data->member_count,
             'realm' => Str::deslug($data->realm->slug),

@@ -28,7 +28,7 @@ class BlizzardProfileClient
     public function getGuildBasicInfo(string $realmName, string $guildName)
     {
         try {
-            return $this->client->get("guild/$realmName/$guildName");
+            return $this->client->get("/data/wow/guild/$realmName/$guildName");
         } catch (BadResponseException $e) {
             throw new BlizzardServiceException('Couldnt retrieve guild with status ' . $e->getResponse()->getStatusCode());
         }
@@ -37,7 +37,7 @@ class BlizzardProfileClient
     public function getGuildRoster(string $realmName, string $guildName)
     {
         try {
-            return $this->client->get("guild/$realmName/$guildName/roster");
+            return $this->client->get("/data/wow/guild/$realmName/$guildName/roster");
         } catch (BadResponseException $e) {
             throw new BlizzardServiceException('Couldnt retrieve guild with status ' . $e->getResponse()->getStatusCode());
         }
@@ -46,9 +46,27 @@ class BlizzardProfileClient
     public function getGuildAchievements(string $realmName, string $guildName)
     {
         try {
-            return $this->client->get("guild/$realmName/$guildName/achievements");
+            return $this->client->get("/data/wow/guild/$realmName/$guildName/achievements");
         } catch (BadResponseException $e) {
             throw new BlizzardServiceException('Couldnt retrieve guild achievements with status ' . $e->getResponse()->getStatusCode());
+        }
+    }
+
+    public function getCharacterBasicInfo(string $realmName, string $characterName)
+    {
+        try {
+            return $this->client->get("/profile/wow/character/$realmName/$characterName");
+        } catch (BadResponseException $e) {
+            throw new BlizzardServiceException('Couldnt retrieve character data with status ' . $e->getResponse()->getStatusCode());
+        }
+    }
+
+    public function getCharacterMedia(string $realmName, string $characterName)
+    {
+        try {
+            return $this->client->get("/profile/wow/character/$realmName/$characterName/character-media");
+        } catch (BadResponseException $e) {
+            throw new BlizzardServiceException('Couldnt retrieve character data with status ' . $e->getResponse()->getStatusCode());
         }
     }
 

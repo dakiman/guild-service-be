@@ -12,7 +12,7 @@ return [
     ],
 
     'api' => [
-        'url' => "https://{locale}.api.blizzard.com/data/wow/"
+        'url' => "https://{locale}.api.blizzard.com"
     ],
 
     'regions' => [
