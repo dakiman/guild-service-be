@@ -36,16 +36,16 @@ class GuildService
     private function getGuild(string $realmName, string $guildName): array
     {
         $response = $this->profileClient->getGuildBasicInfo($realmName, $guildName);
-        $data = json_decode($response->getBody());
+        $guild = json_decode($response->getBody());
 
         return [
-            'id' => $data->id,
-            'name' => $data->name,
-            'faction' => ucfirst(strtolower($data->faction->type)),
-            'achievementPoints' => $data->achievement_points,
-            'memberCount' => $data->member_count,
-            'realm' => Str::deslug($data->realm->slug),
-            'created' => $data->created_timestamp
+            'id' => $guild->id,
+            'name' => $guild->name,
+            'faction' => ucfirst(strtolower($guild->faction->type)),
+            'achievementPoints' => $guild->achievement_points,
+            'memberCount' => $guild->member_count,
+            'realm' => Str::deslug($guild->realm->slug),
+            'created' => $guild->created_timestamp
         ];
     }
 

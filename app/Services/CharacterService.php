@@ -26,38 +26,38 @@ class CharacterService
     private function getCharacter(string $realmName, string $characterName): array
     {
         $response = $this->profileClient->getCharacterBasicInfo($realmName, $characterName);
-        $data = json_decode($response->getBody());
+        $character = json_decode($response->getBody());
 
         return [
-            'id' => $data->id,
-            'name' => $data->name,
-            'gender' => ucfirst(strtolower($data->gender->type)),
-            'faction' => ucfirst(strtolower($data->faction->type)),
-            'race' => $data->race->id,
-            'class' => $data->character_class->id,
-            'realm' => Str::deslug($data->realm->slug),
+            'id' => $character->id,
+            'name' => $character->name,
+            'gender' => ucfirst(strtolower($character->gender->type)),
+            'faction' => ucfirst(strtolower($character->faction->type)),
+            'race' => $character->race->id,
+            'class' => $character->character_class->id,
+            'realm' => Str::deslug($character->realm->slug),
             'guild' => [
-                'id' => $data->guild->id,
-                'name' => $data->guild->name,
-                'realm' => Str::deslug($data->guild->realm->slug),
+                'id' => $character->guild->id,
+                'name' => $character->guild->name,
+                'realm' => Str::deslug($character->guild->realm->slug),
             ],
-            'level' => $data->level,
-            'achievementPoints' => $data->achievement_points,
-            'averageItemLevel' => $data->average_item_level,
-            'equippedItemLevel' => $data->equipped_item_level
+            'level' => $character->level,
+            'achievementPoints' => $character->achievement_points,
+            'averageItemLevel' => $character->average_item_level,
+            'equippedItemLevel' => $character->equipped_item_level
         ];
     }
 
     private function getCharacterMedia(string $realmName, string $characterName): array
     {
         $response = $this->profileClient->getCharacterMedia($realmName, $characterName);
-        $data = json_decode($response->getBody());
+        $media = json_decode($response->getBody());
 
         return [
             'media' => [
-                'avatar' => $data->avatar_url,
-                'bust' => $data->bust_url,
-                'render' => $data->render_url
+                'avatar' => $media->avatar_url,
+                'bust' => $media->bust_url,
+                'render' => $media->render_url
             ]
         ];
     }
