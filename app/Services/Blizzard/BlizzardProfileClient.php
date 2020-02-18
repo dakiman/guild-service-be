@@ -25,7 +25,14 @@ class BlizzardProfileClient
         ]);
     }
 
-    public function getGuildInfo(string $realmName, string $guildName): array
+    /*
+     * @return array [
+     *      'basic' => GuzzleHttp\Psr7\Response,
+     *      'roster' => GuzzleHttp\Psr7\Response,
+     *      'achievements' => GuzzleHttp\Psr7\Response
+     *  ]
+     * */
+    public function getGuildInfo(string $realmName, string $guildName)
     {
         $promises = [
             'basic' => $this->client->getAsync("/data/wow/guild/$realmName/$guildName"),
@@ -36,10 +43,16 @@ class BlizzardProfileClient
         try {
             return Promise\unwrap($promises);
         } catch (\Exception $e) {
-            throw new BlizzardServiceException('Couldnt retrieve guild', $e);
+            throw new BlizzardServiceException('Couldnt retrieve guild', $e, 404);
         }
     }
 
+    /*
+    * @return array [
+    *      'basic' => GuzzleHttp\Psr7\Response,
+    *      'media' => GuzzleHttp\Psr7\Response
+    *  ]
+    * */
     public function getCharacterInfo(string $realmName, string $characterName)
     {
         $promises = [
@@ -50,7 +63,7 @@ class BlizzardProfileClient
         try {
             return Promise\unwrap($promises);
         } catch (\Exception $e) {
-            throw new BlizzardServiceException('Couldnt retrieve character', $e);
+            throw new BlizzardServiceException('Couldnt retrieve character', $e, 404);
         }
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Services\Blizzard;
 
+use GuzzleHttp\Psr7\Response;
 use Illuminate\Support\Str;
 
 class GuildService
@@ -27,7 +28,7 @@ class GuildService
         return $data;
     }
 
-    private function getGuild($response): array
+    private function getGuild(Response $response): array
     {
         $guild = json_decode($response->getBody());
 
@@ -42,7 +43,7 @@ class GuildService
         ];
     }
 
-    private function getRoster($response)
+    private function getRoster(Response $response)
     {
         $data = json_decode($response->getBody());
 

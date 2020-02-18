@@ -37,7 +37,7 @@ class Handler extends ExceptionHandler
     {
         if($exception instanceof ApiException) {
             return response()->json([
-                'message' => $exception->getMessage(),
+                'message' => $exception->getMessage() ?? 'Unexpected error occured.',
             ], $exception->getStatusCode() ?? 500);
         }
 

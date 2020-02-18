@@ -39,11 +39,11 @@ class CharacterService
             'race' => $character->race->id,
             'class' => $character->character_class->id,
             'realm' => Str::deslug($character->realm->slug),
-            'guild' => [
+            'guild' => isset($character->guild) ? [
                 'id' => $character->guild->id,
                 'name' => $character->guild->name,
                 'realm' => Str::deslug($character->guild->realm->slug),
-            ],
+            ] : null,
             'level' => $character->level,
             'achievementPoints' => $character->achievement_points,
             'averageItemLevel' => $character->average_item_level,
