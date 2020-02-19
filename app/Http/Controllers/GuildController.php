@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Rules\RegionRule;
 use App\Services\Blizzard\GuildService;
-use Illuminate\Validation\Rule;
 
 class GuildController extends Controller
 {
@@ -12,10 +12,7 @@ class GuildController extends Controller
     public function __construct()
     {
         request()->validate([
-            'locale' => [
-                'required',
-                Rule::in(array_merge(array_map("strtolower", config('blizzard.regions')), config('blizzard.regions')))
-            ]
+            'locale' => ['required', new RegionRule]
         ]);
 
         $this->guildService = app(GuildService::class, ['locale' => request('locale')]);
