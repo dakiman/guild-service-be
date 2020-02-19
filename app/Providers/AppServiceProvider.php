@@ -3,10 +3,10 @@
 namespace App\Providers;
 
 use Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Schema;
+use Validator;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -17,15 +17,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        Schema::defaultStringLength(191);
-
-        if ($this->app->environment() !== 'production') {
+        if ($this->app->environment() === 'local') {
             $this->app->register(IdeHelperServiceProvider::class);
         }
-
-        Str::macro('deslug', function ($string) {
-            return ucwords(str_replace('-', ' ', $string), ' ');
-        });
     }
 
     /**
@@ -35,6 +29,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        Schema::defaultStringLength(191);
+
+        Str::macro('deslug', function ($string) {
+            return ucwords(str_replace('-', ' ', $string), ' ');
+        });
     }
 }

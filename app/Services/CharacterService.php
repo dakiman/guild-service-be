@@ -24,6 +24,7 @@ class CharacterService
 
         $data = $this->getCharacter($responses['basic']);
         $data['media'] = $this->getCharacterMedia($responses['media']);
+
         return $data;
     }
 
