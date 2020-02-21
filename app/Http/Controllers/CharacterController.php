@@ -24,4 +24,10 @@ class CharacterController extends Controller
         return response()->json(['character' => $character], 200);
     }
 
+    public function raiderioData(string $realm, string $characterName)
+    {
+        $data = $this->characterService->getCharacterRaiderioData($realm, $characterName, request('locale'));
+        return response()->json(['raiderio' => $data], 200);
+    }
+
 }

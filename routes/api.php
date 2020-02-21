@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 
 Route::get('/guild/{realm}/{guild}', 'GuildController@guild');
 Route::get('/character/{realm}/{character}', 'CharacterController@character');
+Route::get('/character/{realm}/{character}/raiderio', 'CharacterController@raiderioData');
 
 Route::middleware('auth')->get('/user', function (Request $request) {
     return response()->json([

@@ -5,15 +5,18 @@ namespace App\Services;
 
 
 use App\Services\Blizzard\BlizzardProfileClient;
+use App\Services\Raiderio\RaiderioClient;
 use Illuminate\Support\Str;
 
 class CharacterService
 {
     private BlizzardProfileClient $profileClient;
+    private RaiderioClient $raiderioClient;
 
     public function __construct($locale)
     {
         $this->profileClient = app(BlizzardProfileClient::class, ['locale' => $locale]);
+        $this->raiderioClient = app(RaiderioClient::class);
     }
 
     public function getBasicCharacterInfo(string $realmName, string $characterName): array
@@ -26,6 +29,26 @@ class CharacterService
         $data['media'] = $this->getCharacterMedia($responses['media']);
 
         return $data;
+    }
+
+    public function getCharacterRaiderioData(string $realmName, string $characterName, string $locale)
+    {
+        $realmName = Str::slug($realmName);
+
+        $response = $this->raiderioClient->getRaiderioInfo($realmName, $characterName, $locale);
+
+        return $this->getRaiderioData($response);
+    }
+
+    public function getRaiderioData($response): array
+    {
+        $raiderioData = json_decode($response->getBody());
+
+        return [
+            'mythicPlusRanks' => $raiderioData->mythic_plus_ranks,
+            'gear' => $raiderioData->gear,
+            'raidProgression' => $raiderioData->raid_progression
+        ];
     }
 
     private function getCharacter($response): array

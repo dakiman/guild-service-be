@@ -8,10 +8,12 @@ use Illuminate\Support\Str;
 class GuildService
 {
     private BlizzardProfileClient $profileClient;
+    private string $locale;
 
     public function __construct($locale)
     {
-        $this->profileClient = app(BlizzardProfileClient::class, ['locale' => $locale]);
+        $this->locale = $locale;
+        $this->profileClient = app(BlizzardProfileClient::class, ['locale' => $this->locale]);
     }
 
     public function getFullGuildInfo(string $realmName, string $guildName)
@@ -56,7 +58,8 @@ class GuildService
                     'realm' => Str::deslug($character->realm->slug),
                     'class' => $character->playable_class->id,
                     'race' => $character->playable_race->id,
-                    'rank' => $member->rank
+                    'rank' => $member->rank,
+                    'region' => $this->locale
                 ];
             });
     }
