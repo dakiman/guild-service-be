@@ -20,7 +20,7 @@ class BlizzardProfileClient
             'base_uri' => $apiUrl,
             'query' => [
                 'namespace' => 'profile-' . $locale,
-                'locale' => 'en_' . $locale
+                'locale' => 'en_GB'
             ]
         ]);
     }
@@ -50,14 +50,16 @@ class BlizzardProfileClient
     /*
     * @return array [
     *      'basic' => GuzzleHttp\Psr7\Response,
-    *      'media' => GuzzleHttp\Psr7\Response
+    *      'media' => GuzzleHttp\Psr7\Response,
+    *      'equipment' => GuzzleHttp\Psr7\Response
     *  ]
     * */
     public function getCharacterInfo(string $realmName, string $characterName)
     {
         $promises = [
             'basic' => $this->client->getAsync("/profile/wow/character/$realmName/$characterName"),
-            'media' => $this->client->getAsync("/profile/wow/character/$realmName/$characterName/character-media")
+            'media' => $this->client->getAsync("/profile/wow/character/$realmName/$characterName/character-media"),
+            'equipment' => $this->client->getAsync("/profile/wow/character/$realmName/$characterName/equipment")
         ];
 
         try {

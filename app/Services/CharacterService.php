@@ -27,6 +27,7 @@ class CharacterService
 
         $data = $this->getCharacter($responses['basic']);
         $data['media'] = $this->getCharacterMedia($responses['media']);
+        $data['equipment'] = $this->getEquipment($responses['equipment']);
 
         return $data;
     }
@@ -58,15 +59,15 @@ class CharacterService
         return [
             'id' => $character->id,
             'name' => $character->name,
-            'gender' => ucfirst(strtolower($character->gender->type)),
-            'faction' => ucfirst(strtolower($character->faction->type)),
+            'gender' => $character->gender->name,
+            'faction' => $character->faction->name,
             'race' => $character->race->id,
             'class' => $character->character_class->id,
-            'realm' => Str::deslug($character->realm->slug),
+            'realm' =>$character->realm->name,
             'guild' => isset($character->guild) ? [
                 'id' => $character->guild->id,
                 'name' => $character->guild->name,
-                'realm' => Str::deslug($character->guild->realm->slug),
+                'realm' => $character->guild->realm->name,
             ] : null,
             'level' => $character->level,
             'achievementPoints' => $character->achievement_points,
@@ -84,5 +85,19 @@ class CharacterService
             'bust' => $media->bust_url,
             'render' => $media->render_url
         ];
+    }
+
+    private function getEquipment($response)
+    {
+        $data = json_decode($response->getBody());
+
+        return collect($data->equipped_items)
+            ->map(function($item) {
+                return [
+                    'id' => $item->item->id,
+                    'name' => $item->name,
+                    'quality' => $item->quality->name
+                ];
+            });
     }
 }
