@@ -63,7 +63,7 @@ class CharacterService
             'faction' => $character->faction->name,
             'race' => $character->race->id,
             'class' => $character->character_class->id,
-            'realm' =>$character->realm->name,
+            'realm' => $character->realm->name,
             'guild' => isset($character->guild) ? [
                 'id' => $character->guild->id,
                 'name' => $character->guild->name,
@@ -92,12 +92,26 @@ class CharacterService
         $data = json_decode($response->getBody());
 
         return collect($data->equipped_items)
-            ->map(function($item) {
-                return [
+            ->map(function ($item) {
+
+                $parsedItem = [
                     'id' => $item->item->id,
                     'name' => $item->name,
-                    'quality' => $item->quality->name
+                    'quality' => $item->quality->name,
+                    'itemLevel' => $item->level->value,
                 ];
+
+                /*TODO Reconsider implementation */
+                if (!empty($item->sockets)) {
+                    $parsedItem['sockets'] = [];
+                    foreach ($item->sockets as $socket)
+                        array_push(
+                            $parsedItem['sockets'],
+                            ['gem' => $socket->item->id ?? null, 'type' => $socket->socket_type->name]
+                        );
+                }
+
+                return $parsedItem;
             });
     }
 }
