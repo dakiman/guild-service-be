@@ -4,6 +4,7 @@
 namespace App\Services;
 
 
+use App\DTO\BlizzardCharacter;
 use App\Services\Blizzard\BlizzardProfileClient;
 use App\Services\Raiderio\RaiderioClient;
 use Illuminate\Support\Str;
@@ -55,25 +56,7 @@ class CharacterService
     private function getCharacter($response): array
     {
         $character = json_decode($response->getBody());
-
-        return [
-            'id' => $character->id,
-            'name' => $character->name,
-            'gender' => $character->gender->name,
-            'faction' => $character->faction->name,
-            'race' => $character->race->id,
-            'class' => $character->character_class->id,
-            'realm' => $character->realm->name,
-            'guild' => isset($character->guild) ? [
-                'id' => $character->guild->id,
-                'name' => $character->guild->name,
-                'realm' => $character->guild->realm->name,
-            ] : null,
-            'level' => $character->level,
-            'achievementPoints' => $character->achievement_points,
-            'averageItemLevel' => $character->average_item_level,
-            'equippedItemLevel' => $character->equipped_item_level
-        ];
+        return BlizzardCharacter::fromData($character)->toArray();
     }
 
     private function getCharacterMedia($response): array
