@@ -20,14 +20,8 @@ class CharacterController extends Controller
 
     public function character(string $realm, string $characterName)
     {
-        $character = $this->characterService->getBasicCharacterInfo($realm, strtolower($characterName));
+        $character = $this->characterService->getBasicCharacterInfo($realm, strtolower($characterName), request('locale'));
         return response()->json(['character' => $character], 200);
-    }
-
-    public function raiderioData(string $realm, string $characterName)
-    {
-        $data = $this->characterService->getCharacterRaiderioData($realm, $characterName, request('locale'));
-        return response()->json(['raiderio' => $data], 200);
     }
 
 }

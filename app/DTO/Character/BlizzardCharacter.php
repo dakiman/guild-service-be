@@ -19,11 +19,12 @@ class BlizzardCharacter extends FlexibleDataTransferObject
     public int $achievementPoints;
     public int $averageItemLevel;
     public int $equippedItemLevel;
+    public ?CharacterGuild $guild;
+    public ?CharacterMedia $media;
+    /** @var EquipmentItem[]|null  */
+    public $equipment;
 
-    /** @var \App\DTO\CharacterGuild|null */
-    public $guild;
-
-    public static function fromData(object $character)
+    public static function fromData(object $character): BlizzardCharacter
     {
         return new self([
             'id' => $character->id,
@@ -40,6 +41,5 @@ class BlizzardCharacter extends FlexibleDataTransferObject
             'equippedItemLevel' => $character->equipped_item_level
         ]);
     }
-
 
 }
