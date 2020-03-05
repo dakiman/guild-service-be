@@ -3,7 +3,6 @@
 
 namespace App\DTO;
 
-
 use Spatie\DataTransferObject\FlexibleDataTransferObject;
 
 class EquipmentItem extends FlexibleDataTransferObject
@@ -12,29 +11,36 @@ class EquipmentItem extends FlexibleDataTransferObject
     public ?int $itemLevel;
     public ?string $name;
     public ?string $quality;
+    /** @var \App\DTO\ItemSocket[]|null */
+    public $sockets;
 
-    public static function fromData(object $equipment)
+    public static function fromData(object $item): self
     {
+        $parsedItem = [
+            'id' => $item->item->id,
+            'name' => $item->name,
+            'quality' => $item->quality->name,
+            'itemLevel' => $item->level->value,
+        ];
 
-        return new self(collect($equipment->equipped_items)->map(function ($item) {
-            $parsedItem = [
-                'id' => $item->item->id,
-                'name' => $item->name,
-                'quality' => $item->quality->name,
-                'itemLevel' => $item->level->value,
-            ];
+        /*TODO Reconsider implementation */
+        if (!empty($item->sockets)) {
+            $parsedItem['sockets'] = [];
 
-            /*TODO Reconsider implementation */
-            if (!empty($item->sockets)) {
-                $parsedItem['sockets'] = [];
-                foreach ($item->sockets as $socket)
-                    array_push(
-                        $parsedItem['sockets'],
-                        ['gem' => $socket->item->id ?? null, 'type' => $socket->socket_type->name]
-                    );
+            foreach ($item->sockets as $socket) {
+                $socket = new ItemSocket([
+                    'gem' => $socket->item->id ?? null,
+                    'type' => $socket->socket_type->name
+                ]);
+
+                array_push(
+                    $parsedItem['sockets'],
+                    $socket
+                );
             }
+        }
 
-            return $parsedItem;
-        })->toArray());
+        return new self($parsedItem);
     }
+
 }

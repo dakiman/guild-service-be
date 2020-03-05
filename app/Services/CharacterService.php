@@ -28,9 +28,9 @@ class CharacterService
 
         $responses = $this->profileClient->getCharacterInfo($realmName, $characterName, $locale);
 
-        $character = $this->getCharacter($responses['basic']);
-        $character->media = $this->getCharacterMedia($responses['media']);
-        $character->equipment = $this->getEquipment($responses['equipment']);
+        $character = $this->getCharacterFromResponse($responses['basic']);
+        $character->media = $this->getCharacterMediaFromResponse($responses['media']);
+        $character->equipment = $this->getEquipmentFromResponse($responses['equipment']);
 //        $data['raidingData'] = $this->getRaiderioData($this->raiderioClient->getRaiderioInfo($realmName, $characterName, $locale));
 
         return $character;
@@ -47,43 +47,28 @@ class CharacterService
         ];
     }
 
-    private function getCharacter($response): BlizzardCharacter
+    private function getCharacterFromResponse($response): BlizzardCharacter
     {
         $character = json_decode($response->getBody());
         return BlizzardCharacter::fromData($character);
     }
 
-    private function getCharacterMedia($response): CharacterMedia
+    private function getCharacterMediaFromResponse($response): CharacterMedia
     {
         $media = json_decode($response->getBody());
         return CharacterMedia::fromData($media);
     }
 
-    private function getEquipment($response)
+    /** @return EquipmentItem[] */
+    private function getEquipmentFromResponse($response)
     {
         $data = json_decode($response->getBody());
-        return EquipmentItem::fromData($data);
-//        return collect($data->equipped_items)
-//            ->map(function ($item) {
-//
-//                $parsedItem = [
-//                    'id' => $item->item->id,
-//                    'name' => $item->name,
-//                    'quality' => $item->quality->name,
-//                    'itemLevel' => $item->level->value,
-//                ];
-//
-//                /*TODO Reconsider implementation */
-//                if (!empty($item->sockets)) {
-//                    $parsedItem['sockets'] = [];
-//                    foreach ($item->sockets as $socket)
-//                        array_push(
-//                            $parsedItem['sockets'],
-//                            ['gem' => $socket->item->id ?? null, 'type' => $socket->socket_type->name]
-//                        );
-//                }
-//
-//                return $parsedItem;
-//            });
+
+        $items = [];
+        foreach ($data->equipped_items as $item) {
+            array_push($items, EquipmentItem::fromData($item));
+        }
+
+        return $items;
     }
 }

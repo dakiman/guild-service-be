@@ -12,7 +12,7 @@ class CharacterGuild extends FlexibleDataTransferObject
     public string $name;
     public string $realm;
 
-    public static function fromData(object $guild)
+    public static function fromData(object $guild): self
     {
         return new self([
             'id' => $guild->id,

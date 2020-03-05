@@ -24,7 +24,7 @@ class BlizzardCharacter extends FlexibleDataTransferObject
     /** @var EquipmentItem[]|null  */
     public $equipment;
 
-    public static function fromData(object $character): BlizzardCharacter
+    public static function fromData(object $character): self
     {
         return new self([
             'id' => $character->id,

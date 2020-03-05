@@ -12,7 +12,7 @@ class CharacterMedia extends FlexibleDataTransferObject
     public string $bust;
     public string $render;
 
-    public static function fromData(object $media): CharacterMedia
+    public static function fromData(object $media): self
     {
         return new self([
             'avatar' => $media->avatar_url,
