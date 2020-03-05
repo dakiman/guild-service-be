@@ -2,6 +2,9 @@
 
 namespace App\Services\Blizzard;
 
+use App\DTO\Guild\BlizzardGuild;
+use App\DTO\Guild\GuildAchievement;
+use App\DTO\Guild\RosterCharacter;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Support\Str;
 
@@ -10,76 +13,56 @@ class GuildService
     private BlizzardProfileClient $profileClient;
     private string $locale;
 
-    public function __construct($locale)
+    public function __construct($locale, BlizzardProfileClient $profileClient)
     {
         $this->locale = $locale;
-        $this->profileClient = app(BlizzardProfileClient::class, ['locale' => $this->locale]);
+        $this->profileClient = $profileClient;
     }
 
-    public function getFullGuildInfo(string $realmName, string $guildName)
+    public function getFullGuildInfo(string $realmName, string $guildName, string $locale)
     {
         $realmName = Str::slug($realmName);
         $guildName = Str::slug($guildName);
 
-        $responses = $this->profileClient->getGuildInfo($realmName, $guildName);
+        $responses = $this->profileClient->getGuildInfo($realmName, $guildName, $locale);
 
-        $data = $this->getGuild($responses['basic']);
-        $data['roster'] = $this->getRoster($responses['roster']);
-        $data['achievements'] = $this->getAchievements($responses['achievements']);
+        $guild = $this->getGuildFromResponse($responses['basic']);
+        $guild->roster = $this->getRosterFromResponse($responses['roster']);
+        $guild->achievements = $this->getAchievementsFromResponse($responses['achievements']);
 
-        return $data;
+        return $guild;
     }
 
-    private function getGuild(Response $response): array
+    private function getGuildFromResponse(Response $response): BlizzardGuild
     {
         $guild = json_decode($response->getBody());
-
-        return [
-            'id' => $guild->id,
-            'name' => $guild->name,
-            'faction' => ucfirst(strtolower($guild->faction->type)),
-            'achievementPoints' => $guild->achievement_points,
-            'memberCount' => $guild->member_count,
-            'realm' => Str::deslug($guild->realm->slug),
-            'created' => $guild->created_timestamp
-        ];
+        return BlizzardGuild::fromData($guild);
     }
 
-    private function getRoster(Response $response)
+    /** @return RosterCharacter[] */
+    private function getRosterFromResponse(Response $response)
     {
         $data = json_decode($response->getBody());
 
-        return collect($data->members)
-            ->map(function ($member) {
-                $character = $member->character;
-                return [
-                    'name' => $character->name,
-                    'level' => $character->level,
-                    'realm' => Str::deslug($character->realm->slug),
-                    'class' => $character->playable_class->id,
-                    'race' => $character->playable_race->id,
-                    'rank' => $member->rank,
-                    'region' => $this->locale
-                ];
-            });
+        $roster = [];
+        foreach($data->members as $member) {
+            array_push($roster, RosterCharacter::fromData($member, $this->locale));
+        }
+
+        return $roster;
     }
 
-    private function getAchievements($response)
+    /** @return GuildAchievement[] */
+    private function getAchievementsFromResponse(Response $response)
     {
         $data = json_decode($response->getBody());
 
-        return collect($data->achievements)
-            ->map(function ($achievement) {
-                return [
-                    'id' => $achievement->id,
-                    'name' => $achievement->achievement->name,
-//                    'criteria' => [
-//                        'id' => $achievement->criteria->id,
-//                        'completed' => $achievement->criteria->is_completed
-//                    ],
-                    'completedAt' => $achievement->completed_timestamp ?? null
-                ];
-            });
+        $achievements = [];
+        foreach($data->achievements as $singleAchievement) {
+            array_push($achievements, GuildAchievement::fromData($singleAchievement));
+        }
+
+        return $achievements;
     }
 
 }

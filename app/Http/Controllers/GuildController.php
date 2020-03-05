@@ -20,7 +20,7 @@ class GuildController extends Controller
 
     public function guild($realm, $guild)
     {
-        $guild = $this->guildService->getFullGuildInfo($realm, $guild);
+        $guild = $this->guildService->getFullGuildInfo($realm, $guild, request('locale'));
         return response()->json(['guild' => $guild], 200);
     }
 
