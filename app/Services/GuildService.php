@@ -45,7 +45,7 @@ class GuildService
         $data = json_decode($response->getBody());
 
         $roster = [];
-        foreach($data->members as $member) {
+        foreach ($data->members as $member) {
             array_push($roster, RosterCharacter::fromData($member, $this->locale));
         }
 
@@ -58,7 +58,7 @@ class GuildService
         $data = json_decode($response->getBody());
 
         $achievements = [];
-        foreach($data->achievements as $singleAchievement) {
+        foreach ($data->achievements as $singleAchievement) {
             array_push($achievements, GuildAchievement::fromData($singleAchievement));
         }
 

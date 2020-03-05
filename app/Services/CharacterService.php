@@ -9,7 +9,7 @@ use App\DTO\CharacterMedia;
 use App\DTO\EquipmentItem;
 use App\Services\Blizzard\BlizzardProfileClient;
 use App\Services\Raiderio\RaiderioClient;
-use Illuminate\Support\Str;
+use Str;
 
 class CharacterService
 {
