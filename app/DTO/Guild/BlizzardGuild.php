@@ -17,9 +17,9 @@ class BlizzardGuild extends FlexibleDataTransferObject
     public string $name;
     public string $faction;
     public string $realm;
-    /** @var RosterCharacter|null */
+    /** @var \App\DTO\Guild\RosterCharacter[]|null */
     public $roster;
-    /** @var GuildAchievement|null */
+    /** @var \App\DTO\Guild\GuildAchievement[]|null */
     public $achievements;
 
     public static function fromData(object $guild): self

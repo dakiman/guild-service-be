@@ -5,6 +5,7 @@ namespace App\Services\Blizzard;
 use App\DTO\Guild\BlizzardGuild;
 use App\DTO\Guild\GuildAchievement;
 use App\DTO\Guild\RosterCharacter;
+use App\Guild;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Support\Str;
 
@@ -24,11 +25,20 @@ class GuildService
         $realmName = Str::slug($realmName);
         $guildName = Str::slug($guildName);
 
-        $responses = $this->profileClient->getGuildInfo($realmName, $guildName, $locale);
+        $guild = Guild::where('name', $guildName)
+            ->where('realm', $realmName)
+            ->first();
 
-        $guild = $this->getGuildFromResponse($responses['basic']);
-        $guild->roster = $this->getRosterFromResponse($responses['roster']);
-        $guild->achievements = $this->getAchievementsFromResponse($responses['achievements']);
+        if ($guild) {
+            return new BlizzardGuild(json_decode($guild->guild_data, true));
+        } else {
+            $responses = $this->profileClient->getGuildInfo($realmName, $guildName, $locale);
+
+            $guild = $this->getGuildFromResponse($responses['basic']);
+            $guild->roster = $this->getRosterFromResponse($responses['roster']);
+            $guild->achievements = $this->getAchievementsFromResponse($responses['achievements']);
+            Guild::create(['name' => $guildName, 'realm' => $realmName, 'region' => $locale, 'guild_data' => json_encode($guild)]);
+        }
 
         return $guild;
     }

@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\DTO;
+namespace App\DTO\Character;
 
 
 use Spatie\DataTransferObject\FlexibleDataTransferObject;
@@ -19,11 +19,11 @@ class BlizzardCharacter extends FlexibleDataTransferObject
     public int $achievementPoints;
     public int $averageItemLevel;
     public int $equippedItemLevel;
-    /** @var \App\DTO\CharacterGuild|null */
+    /** @var \App\DTO\Character\CharacterGuild|null */
     public $guild;
-    /** @var \App\DTO\CharacterMedia|null*/
+    /** @var \App\DTO\Character\CharacterMedia|null*/
     public $media;
-    /** @var \App\DTO\EquipmentItem[]|null  */
+    /** @var \App\DTO\Character\EquipmentItem[]|null  */
     public $equipment;
 
     public static function fromData(object $character): self

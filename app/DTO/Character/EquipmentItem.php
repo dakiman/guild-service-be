@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\DTO;
+namespace App\DTO\Character;
 
 use Spatie\DataTransferObject\FlexibleDataTransferObject;
 
@@ -11,7 +11,7 @@ class EquipmentItem extends FlexibleDataTransferObject
     public ?int $itemLevel;
     public ?string $name;
     public ?string $quality;
-    /** @var \App\DTO\ItemSocket[]|null */
+    /** @var \App\DTO\Character\ItemSocket[]|null */
     public $sockets;
 
     public static function fromData(object $item): self

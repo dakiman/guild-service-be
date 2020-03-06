@@ -5,9 +5,9 @@ namespace App\Services;
 
 
 use App\Character;
-use App\DTO\BlizzardCharacter;
-use App\DTO\CharacterMedia;
-use App\DTO\EquipmentItem;
+use App\DTO\Character\BlizzardCharacter;
+use App\DTO\Character\CharacterMedia;
+use App\DTO\Character\EquipmentItem;
 use App\Services\Blizzard\BlizzardProfileClient;
 use App\Services\Raiderio\RaiderioClient;
 use Str;

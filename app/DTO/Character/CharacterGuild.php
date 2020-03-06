@@ -1,7 +1,8 @@
 <?php
 
 
-namespace App\DTO;
+namespace App\DTO\Character;
+
 
 
 use Spatie\DataTransferObject\FlexibleDataTransferObject;
