@@ -37,7 +37,13 @@ class GuildService
             $guild = $this->getGuildFromResponse($responses['basic']);
             $guild->roster = $this->getRosterFromResponse($responses['roster']);
             $guild->achievements = $this->getAchievementsFromResponse($responses['achievements']);
-            Guild::create(['name' => $guildName, 'realm' => $realmName, 'region' => $locale, 'guild_data' => json_encode($guild)]);
+
+            Guild::create([
+                'name' => $guildName,
+                'realm' => $realmName,
+                'region' => $locale,
+                'guild_data' => json_encode($guild)
+            ]);
         }
 
         return $guild;
