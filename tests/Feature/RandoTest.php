@@ -12,7 +12,7 @@ class RandoTest extends TestCase
     /** @test */
     public function rando()
     {
-        $response = $this->get('/api/guild/the-maelstrom/divided?locale=eu');
+        $response = $this->get('/api/character/the-maelstrom/sernaos?locale=eu');
 
         $response->assertStatus(200);
     }

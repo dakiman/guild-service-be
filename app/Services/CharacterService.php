@@ -4,6 +4,7 @@
 namespace App\Services;
 
 
+use App\Character;
 use App\DTO\BlizzardCharacter;
 use App\DTO\CharacterMedia;
 use App\DTO\EquipmentItem;
@@ -25,13 +26,20 @@ class CharacterService
     public function getBasicCharacterInfo(string $realmName, string $characterName, string $locale): BlizzardCharacter
     {
         $realmName = Str::slug($realmName);
+        $character = Character::where('name', $characterName)
+            ->where('realm', $realmName)
+            ->first();
 
-        $responses = $this->profileClient->getCharacterInfo($realmName, $characterName, $locale);
+        if($character) {
+            return new BlizzardCharacter(json_decode($character->character_data, true));
+        } else {
+            $responses = $this->profileClient->getCharacterInfo($realmName, $characterName, $locale);
 
-        $character = $this->getCharacterFromResponse($responses['basic']);
-        $character->media = $this->getCharacterMediaFromResponse($responses['media']);
-        $character->equipment = $this->getEquipmentFromResponse($responses['equipment']);
-//        $data['raidingData'] = $this->getRaiderioData($this->raiderioClient->getRaiderioInfo($realmName, $characterName, $locale));
+            $character = $this->getCharacterFromResponse($responses['basic']);
+            $character->media = $this->getCharacterMediaFromResponse($responses['media']);
+            $character->equipment = $this->getEquipmentFromResponse($responses['equipment']);
+            Character::create(['name' => $characterName, 'realm' => $realmName, 'region' => $locale, 'character_data' => json_encode($character)]);
+        }
 
         return $character;
     }
