@@ -4,41 +4,50 @@
 namespace App\Services;
 
 
+use App\Character;
+use App\DTO\Character\BlizzardCharacter;
+use App\DTO\Character\CharacterMedia;
+use App\DTO\Character\EquipmentItem;
 use App\Services\Blizzard\BlizzardProfileClient;
 use App\Services\Raiderio\RaiderioClient;
-use Illuminate\Support\Str;
+use Str;
 
 class CharacterService
 {
     private BlizzardProfileClient $profileClient;
     private RaiderioClient $raiderioClient;
 
-    public function __construct($locale)
+    public function __construct(BlizzardProfileClient $profileClient, RaiderioClient $raiderioClient)
     {
-        $this->profileClient = app(BlizzardProfileClient::class, ['locale' => $locale]);
-        $this->raiderioClient = app(RaiderioClient::class);
+        $this->profileClient = $profileClient;
+        $this->raiderioClient = $raiderioClient;
     }
 
-    public function getBasicCharacterInfo(string $realmName, string $characterName): array
+    public function getBasicCharacterInfo(string $realmName, string $characterName, string $locale): BlizzardCharacter
     {
         $realmName = Str::slug($realmName);
+        $character = Character::where('name', $characterName)
+            ->where('realm', $realmName)
+            ->first();
 
-        $responses = $this->profileClient->getCharacterInfo($realmName, $characterName);
+        if ($character) {
+            return new BlizzardCharacter(json_decode($character->character_data, true));
+        } else {
+            $responses = $this->profileClient->getCharacterInfo($realmName, $characterName, $locale);
 
-        $data = $this->getCharacter($responses['basic']);
-        $data['media'] = $this->getCharacterMedia($responses['media']);
-        $data['equipment'] = $this->getEquipment($responses['equipment']);
+            $character = $this->getCharacterFromResponse($responses['basic']);
+            $character->media = $this->getCharacterMediaFromResponse($responses['media']);
+            $character->equipment = $this->getEquipmentFromResponse($responses['equipment']);
 
-        return $data;
-    }
+            Character::create([
+                'name' => $characterName,
+                'realm' => $realmName,
+                'region' => $locale,
+                'character_data' => json_encode($character)
+            ]);
+        }
 
-    public function getCharacterRaiderioData(string $realmName, string $characterName, string $locale)
-    {
-        $realmName = Str::slug($realmName);
-
-        $response = $this->raiderioClient->getRaiderioInfo($realmName, $characterName, $locale);
-
-        return $this->getRaiderioData($response);
+        return $character;
     }
 
     public function getRaiderioData($response): array
@@ -52,66 +61,28 @@ class CharacterService
         ];
     }
 
-    private function getCharacter($response): array
+    private function getCharacterFromResponse($response): BlizzardCharacter
     {
         $character = json_decode($response->getBody());
-
-        return [
-            'id' => $character->id,
-            'name' => $character->name,
-            'gender' => $character->gender->name,
-            'faction' => $character->faction->name,
-            'race' => $character->race->id,
-            'class' => $character->character_class->id,
-            'realm' => $character->realm->name,
-            'guild' => isset($character->guild) ? [
-                'id' => $character->guild->id,
-                'name' => $character->guild->name,
-                'realm' => $character->guild->realm->name,
-            ] : null,
-            'level' => $character->level,
-            'achievementPoints' => $character->achievement_points,
-            'averageItemLevel' => $character->average_item_level,
-            'equippedItemLevel' => $character->equipped_item_level
-        ];
+        return BlizzardCharacter::fromData($character);
     }
 
-    private function getCharacterMedia($response): array
+    private function getCharacterMediaFromResponse($response): CharacterMedia
     {
         $media = json_decode($response->getBody());
-
-        return [
-            'avatar' => $media->avatar_url,
-            'bust' => $media->bust_url,
-            'render' => $media->render_url
-        ];
+        return CharacterMedia::fromData($media);
     }
 
-    private function getEquipment($response)
+    /** @return EquipmentItem[] */
+    private function getEquipmentFromResponse($response)
     {
         $data = json_decode($response->getBody());
 
-        return collect($data->equipped_items)
-            ->map(function ($item) {
+        $items = [];
+        foreach ($data->equipped_items as $item) {
+            array_push($items, EquipmentItem::fromData($item));
+        }
 
-                $parsedItem = [
-                    'id' => $item->item->id,
-                    'name' => $item->name,
-                    'quality' => $item->quality->name,
-                    'itemLevel' => $item->level->value,
-                ];
-
-                /*TODO Reconsider implementation */
-                if (!empty($item->sockets)) {
-                    $parsedItem['sockets'] = [];
-                    foreach ($item->sockets as $socket)
-                        array_push(
-                            $parsedItem['sockets'],
-                            ['gem' => $socket->item->id ?? null, 'type' => $socket->socket_type->name]
-                        );
-                }
-
-                return $parsedItem;
-            });
+        return $items;
     }
 }

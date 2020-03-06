@@ -3,28 +3,12 @@
 namespace App\Services\Blizzard;
 
 use App\Exceptions\BlizzardServiceException;
+use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Promise;
 
-class BlizzardProfileClient
+class BlizzardProfileClient extends BaseBlizzardClient
 {
-    private Client $client;
-
-    public function __construct(BlizzardAuthClient $authClient, $locale)
-    {
-        $locale = strtolower($locale);
-        $apiUrl = str_replace('{locale}', $locale, config('blizzard.api.url'));
-
-        $this->client = new Client([
-            'headers' => ['Authorization' => 'Bearer ' . $authClient->retrieveToken()],
-            'base_uri' => $apiUrl,
-            'query' => [
-                'namespace' => 'profile-' . $locale,
-                'locale' => 'en_GB'
-            ]
-        ]);
-    }
-
     /*
      * @return array [
      *      'basic' => GuzzleHttp\Psr7\Response,
@@ -32,17 +16,19 @@ class BlizzardProfileClient
      *      'achievements' => GuzzleHttp\Psr7\Response
      *  ]
      * */
-    public function getGuildInfo(string $realmName, string $guildName)
+    public function getGuildInfo(string $realmName, string $guildName, string $locale)
     {
+        $client = $this->buildClientForRegion($locale);
+
         $promises = [
-            'basic' => $this->client->getAsync("/data/wow/guild/$realmName/$guildName"),
-            'roster' => $this->client->getAsync("/data/wow/guild/$realmName/$guildName/roster"),
-            'achievements' => $this->client->getAsync("/data/wow/guild/$realmName/$guildName/achievements")
+            'basic' => $client->getAsync("/data/wow/guild/$realmName/$guildName"),
+            'roster' => $client->getAsync("/data/wow/guild/$realmName/$guildName/roster"),
+            'achievements' => $client->getAsync("/data/wow/guild/$realmName/$guildName/achievements")
         ];
 
         try {
             return Promise\unwrap($promises);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             throw new BlizzardServiceException('Couldnt retrieve guild', $e, 404);
         }
     }
@@ -54,19 +40,36 @@ class BlizzardProfileClient
     *      'equipment' => GuzzleHttp\Psr7\Response
     *  ]
     * */
-    public function getCharacterInfo(string $realmName, string $characterName)
+    public function getCharacterInfo(string $realmName, string $characterName, string $locale)
     {
+        $client = $this->buildClientForRegion($locale);
+
         $promises = [
-            'basic' => $this->client->getAsync("/profile/wow/character/$realmName/$characterName"),
-            'media' => $this->client->getAsync("/profile/wow/character/$realmName/$characterName/character-media"),
-            'equipment' => $this->client->getAsync("/profile/wow/character/$realmName/$characterName/equipment")
+            'basic' => $client->getAsync("/profile/wow/character/$realmName/$characterName"),
+            'media' => $client->getAsync("/profile/wow/character/$realmName/$characterName/character-media"),
+            'equipment' => $client->getAsync("/profile/wow/character/$realmName/$characterName/equipment")
         ];
 
         try {
             return Promise\unwrap($promises);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             throw new BlizzardServiceException('Couldnt retrieve character', $e, 404);
         }
+    }
+
+    private function buildClientForRegion(string $locale)
+    {
+        $locale = strtolower($locale);
+        $apiUrl = str_replace('{locale}', $locale, config('blizzard.api.url'));
+
+        return new Client([
+            'headers' => ['Authorization' => 'Bearer ' . $this->retrieveToken()],
+            'base_uri' => $apiUrl,
+            'query' => [
+                'namespace' => 'profile-' . $locale,
+                'locale' => 'en_GB'
+            ]
+        ]);
     }
 
 }

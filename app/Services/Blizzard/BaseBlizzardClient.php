@@ -1,41 +1,35 @@
 <?php
 
+
 namespace App\Services\Blizzard;
 
+
 use App\Exceptions\BlizzardServiceException;
-use Exception;
 use GuzzleHttp\Client;
 
-class BlizzardAuthClient
+class BaseBlizzardClient
 {
-    private string $clientId;
-    private string $clientSecret;
-    private string $oauthUrl;
 
-    public function __construct()
+    protected function retrieveToken(): string
     {
-        $this->clientId = config('blizzard.client.id');
-        $this->clientSecret = config('blizzard.client.secret');
-        $this->oauthUrl = config('blizzard.oauth.url');
+        $clientId = config('blizzard.client.id');
+        $clientSecret = config('blizzard.client.secret');
+        $oauthUrl = config('blizzard.oauth.url');
 
-        if (empty($this->clientId) ||
-            empty($this->clientSecret)) {
+        if (empty($clientId) || empty($clientSecret)) {
             throw new BlizzardServiceException('Blizzard client id/secret not found.');
         }
-    }
 
-    public function retrieveToken(): string
-    {
         $token = cache('token');
 
         /*If the token is not in the cache, go and retrieve it from blizzard services*/
         if (empty($token)) {
             $client = new Client([
-                'auth' => [$this->clientId, $this->clientSecret],
+                'auth' => [$clientId, $clientSecret],
             ]);
 
             try {
-                $response = $client->post($this->oauthUrl, [
+                $response = $client->post($oauthUrl, [
                     'form_params' => ['grant_type' => 'client_credentials'],
                 ]);
             } catch (Exception $e) {

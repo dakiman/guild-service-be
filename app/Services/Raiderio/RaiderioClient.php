@@ -4,6 +4,7 @@
 namespace App\Services\Raiderio;
 
 use App\Exceptions\RaiderioServiceException;
+use Exception;
 use GuzzleHttp\Client;
 
 class RaiderioClient
@@ -28,7 +29,7 @@ class RaiderioClient
                     'fields' => 'raid_progression,mythic_plus_ranks,gear'
                 ]
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             throw new RaiderioServiceException('Couldnt retrieve character data from RaiderIO services.', $e, 404);
         }
     }
