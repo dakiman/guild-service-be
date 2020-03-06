@@ -15,7 +15,8 @@
         "laravel/framework": "^6.0",
         "laravel/tinker": "^1.0",
         "spatie/data-transfer-object": "^1.13",
-        "tymon/jwt-auth": "1.0.*"
+        "tymon/jwt-auth": "1.0.*",
+        "ext-json": "*"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.6",
