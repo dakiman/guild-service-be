@@ -9,14 +9,15 @@
     "license": "MIT",
     "require": {
         "php": ">=7.4",
-        "barryvdh/laravel-cors": "^0.11.4",
+        "ext-json": "*",
         "fideloper/proxy": "^4.0",
-        "guzzlehttp/guzzle": "^6.4",
+        "fruitcake/laravel-cors": "^1.0",
+        "guzzlehttp/guzzle": "^6.3",
         "laravel/framework": "^7.0",
         "laravel/tinker": "^2.0",
+        "laravel/ui": "^2.0",
         "spatie/data-transfer-object": "^1.13",
-        "tymon/jwt-auth": "1.0.*",
-        "ext-json": "*"
+        "tymon/jwt-auth": "1.0.*"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.6",
