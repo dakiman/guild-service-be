@@ -20,13 +20,15 @@ class GuildService
         $this->profileClient = $profileClient;
     }
 
-    public function getFullGuildInfo(string $realmName, string $guildName, string $locale)
+    public function getFullGuildInfo(string $realmName, string $guildName, string $locale): BlizzardGuild
     {
         $realmName = Str::slug($realmName);
         $guildName = Str::slug($guildName);
 
-        $guild = Guild::where('name', $guildName)
+        $guild = Guild
+            ::where('name', $guildName)
             ->where('realm', $realmName)
+            ->where('region', $locale)
             ->first();
 
         if ($guild) {
