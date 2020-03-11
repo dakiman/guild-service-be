@@ -7,7 +7,7 @@ use GuzzleHttp\Promise;
 use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
 
-class RandoTest extends TestCase
+class PerformanceTest extends TestCase
 {
 
     /** @test */
@@ -18,26 +18,33 @@ class RandoTest extends TestCase
         ]);
 
         $guilds = [
+            ['name' => 'alterac-deviants', 'locale' => 'eu', 'realm' => 'twisting-nether'],
             ['name' => 'complexity-limit', 'locale' => 'us', 'realm' => 'illidan'],
-            ['name' => 'method', 'locale' => 'eu', 'realm' => 'tarren-mill'],
+            ['name' => 'pieces', 'locale' => 'eu', 'realm' => 'draenor'],
+//            ['name' => 'method', 'locale' => 'eu', 'realm' => 'tarren-mill'],
             ['name' => 'Aversion', 'locale' => 'eu', 'realm' => 'blackhand'],
+            ['name' => 'walkthrough', 'locale' => 'eu', 'realm' => 'kazzak'],
         ];
+
+        $CHARACTER_CHUNK_SIZE = 10;
 
         foreach ($guilds as $guild) {
             $response = $client->get($this->getUrlForGuild($guild['realm'], $guild['name'], $guild['locale']));
             $roster = json_decode($response->getBody())->guild->roster;
 
             $counter = 1;
-            $chunks = collect($roster)->chunk(5);
+            $chunks = collect($roster)->chunk($CHARACTER_CHUNK_SIZE);
 
             foreach ($chunks as $chunk) {
-                Log::info("\n Now doing request no $counter for guild " . $guild['name']);
+                Log::info("Now handling chunk number $counter for guild " . $guild['name']);
                 $counter++;
 
                 $urls = [];
                 foreach($chunk as $member) {
                     array_push($urls, $this->getUrlForCharacter($member->realm, $member->name, $member->region));
                 }
+
+                Log::info("Built URLs for chunk no $counter", $urls);
 
                 $promises = [];
                 foreach($urls as $url) {
@@ -47,10 +54,8 @@ class RandoTest extends TestCase
                 try {
                     Promise\unwrap($promises);
                 } catch (\Exception $e) {
-                    Log::info("\n Exception  happened when unwrapping promises");
+                    Log::info("Exception happened when unwrapping promises");
                 }
-
-                Log::info("================================");
             }
         }
     }
