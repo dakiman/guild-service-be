@@ -11,7 +11,7 @@ class PerformanceTest extends TestCase
 {
 
     /** @test */
-    public function rando()
+    public function getGuildRosterParallel()
     {
         $client = new Client([
             'base_uri' => 'https://guild-service-be.herokuapp.com/api/'

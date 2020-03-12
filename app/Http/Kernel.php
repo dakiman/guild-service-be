@@ -39,7 +39,7 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
-            /*TODO PUT BACK RATE LIMIT*/
+            'throttle:60,1',
             'bindings',
             \App\Http\Middleware\JsonHeaders::class
         ],
