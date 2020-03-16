@@ -26,9 +26,11 @@ class CharacterService
     public function getBasicCharacterInfo(string $realmName, string $characterName, string $locale): BlizzardCharacter
     {
         $realmName = Str::slug($realmName);
-        $character = Character::where('name', $characterName)
-            ->where('realm', $realmName)
-            ->first();
+        $character = Character::where([
+            'name' => $characterName,
+            'realm' => $realmName,
+            'region' => $locale
+        ])->first();
 
         if ($character) {
             return new BlizzardCharacter(json_decode($character->character_data, true));
