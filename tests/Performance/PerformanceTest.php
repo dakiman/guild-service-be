@@ -35,12 +35,10 @@ class PerformanceTest extends TestCase
             $counter = 1;
             $chunks = collect($roster)->chunk($CHARACTER_CHUNK_SIZE);
 
-            foreach ($chunks as $chunk) {
-                Log::info("Now handling chunk number $counter for guild " . $guild['name']);
-                $counter++;
+            foreach ($chunks as $character) {
 
                 $urls = [];
-                foreach($chunk as $member) {
+                foreach($character as $member) {
                     array_push($urls, $this->getUrlForCharacter($member->realm, $member->name, $member->region));
                 }
 
