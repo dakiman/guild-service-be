@@ -23,7 +23,8 @@ class AuthenticationTest extends TestCase
         $this->tokenJsonStructure = [
             'accessToken',
             'tokenType',
-            'expiresIn'
+            'expiresIn',
+            'user'
         ];
     }
 
