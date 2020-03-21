@@ -7,8 +7,9 @@ return [
         'secret' => env('BLIZZARD_CLIENT_SECRET', null)
     ],
 
+    /* TODO replace locale with region (naming) */
     'oauth' => [
-        'url' => "https://eu.battle.net/oauth/token"
+        'url' => "https://{locale}.battle.net",
     ],
 
     'api' => [

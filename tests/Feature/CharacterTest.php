@@ -59,4 +59,14 @@ class CharacterTestCase extends TestCase
             ->get('/api/character/randoBoy/randoRealm?locale=eu')
             ->assertStatus(404);
     }
+
+    /** @test */
+    public function adasd()
+    {
+        $response = $this
+            ->post('/api/blizzard-oauth');
+
+        dd($response->getContent());
+    }
+
 }

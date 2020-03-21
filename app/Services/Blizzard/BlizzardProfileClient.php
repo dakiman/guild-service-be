@@ -7,7 +7,7 @@ use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Promise;
 
-class BlizzardProfileClient extends BaseBlizzardClient
+class BlizzardProfileClient
 {
     /*
      * @return array [
@@ -59,11 +59,13 @@ class BlizzardProfileClient extends BaseBlizzardClient
 
     private function buildClientForRegion(string $locale)
     {
-        $locale = strtolower($locale);
+//        $locale = strtolower($locale);
         $apiUrl = str_replace('{locale}', $locale, config('blizzard.api.url'));
 
+        $authClient = app(BlizzardAuthClient::class, ['locale' => $locale]);
+
         return new Client([
-            'headers' => ['Authorization' => 'Bearer ' . $this->retrieveToken()],
+            'headers' => ['Authorization' => 'Bearer ' . $authClient->retrieveToken()],
             'base_uri' => $apiUrl,
             'query' => [
                 'namespace' => 'profile-' . $locale,
