@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Character;
-use App\Exceptions\BlizzardServiceException;
 use Tests\TestCase;
 
 class CharacterTestCase extends TestCase
@@ -64,7 +63,7 @@ class CharacterTestCase extends TestCase
     public function adasd()
     {
         $response = $this
-            ->post('/api/blizzard-oauth');
+            ->post('/api/blizzard-oauth?locale=EU', ['code' => 'EUJW9XLFK2VBU2OWTQX7D811ZDKTCCKZGS', 'redirectUri' => 'http://localhost:8080/blizzard-oauth?locale=eu']);
 
         dd($response->getContent());
     }

@@ -30,8 +30,13 @@ class BlizzardController extends Controller
         ]);
 
         $token = $this->authClient->retrieveUserToken(request('code'), request('redirectUri'));
-        $this->userClient->getUserInfo($token);
+        $blizzardUserInfo = $this->userClient->getUserInfo($token);
 
-        return $token;
+        $user = auth()->user();
+        $user->blizzard_id = $blizzardUserInfo->id;
+        $user->battle_tag = $blizzardUserInfo->battletag;
+        $user->save();
+
+        return response(['data' => $this->userClient->getUserInfo($token)]);
     }
 }
