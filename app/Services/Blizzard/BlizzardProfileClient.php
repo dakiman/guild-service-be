@@ -57,6 +57,16 @@ class BlizzardProfileClient
         }
     }
 
+    public function getUserAccountData(string $token, string $locale)
+    {
+        $client = $this->buildClientForRegion($locale);
+
+        $response = $client->get('/profile/user/wow?access_token=' . $token);
+
+        return json_decode($response->getBody());
+    }
+
+
     private function buildClientForRegion(string $locale)
     {
 //        $locale = strtolower($locale);

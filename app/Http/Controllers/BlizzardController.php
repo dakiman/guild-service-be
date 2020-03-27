@@ -6,11 +6,11 @@ namespace App\Http\Controllers;
 use App\Rules\RegionRule;
 use App\Services\Blizzard\BlizzardAuthClient;
 use App\Services\Blizzard\BlizzardUserClient;
+use App\Services\BlizzardAuthService;
 
 class BlizzardController extends Controller
 {
-    private BlizzardAuthClient $authClient;
-    private BlizzardUserClient $userClient;
+    private BlizzardAuthService $blizzardAuthService;
 
     public function __construct()
     {
@@ -18,8 +18,7 @@ class BlizzardController extends Controller
             'locale' => ['required', new RegionRule]
         ]);
 
-        $this->authClient = app(BlizzardAuthClient::class, ['locale' => request('locale')]);
-        $this->userClient = app(BlizzardUserClient::class, ['locale' => request('locale')]);
+        $this->blizzardAuthService = app(BlizzardAuthService::class);
     }
 
     public function code()
@@ -29,14 +28,12 @@ class BlizzardController extends Controller
             'redirectUri' => 'required'
         ]);
 
-        $token = $this->authClient->retrieveUserToken(request('code'), request('redirectUri'));
-        $blizzardUserInfo = $this->userClient->getUserInfo($token);
+        $this->blizzardAuthService->retrieveBlizzardAccountDetails(
+            request('code'),
+            request('redirectUri'),
+            request('locale')
+        );
 
-        $user = auth()->user();
-        $user->blizzard_id = $blizzardUserInfo->id;
-        $user->battle_tag = $blizzardUserInfo->battletag;
-        $user->save();
-
-        return response(['data' => $this->userClient->getUserInfo($token)]);
+        return response(['message' => 'Success!'], 200);
     }
 }

@@ -6,6 +6,7 @@ namespace App\Services\Blizzard;
 
 use App\Exceptions\BlizzardServiceException;
 use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Response;
 
 class BlizzardAuthClient
 {
@@ -52,7 +53,7 @@ class BlizzardAuthClient
         return $token;
     }
 
-    public function retrieveUserToken(string $authCode, string $redirectUri): string
+    public function retrieveOauthAccessToken(string $authCode, string $redirectUri): string
     {
         $client = new Client([
             'auth' => [$this->clientId, $this->clientSecret],
@@ -70,9 +71,7 @@ class BlizzardAuthClient
             throw new BlizzardServiceException('Couldnt complete Oauth authorization, please try again later', $e);
         }
 
-        $responseBody = json_decode($response->getBody());
-
-        return $responseBody->access_token;
+        return json_decode($response->getBody())->access_token;
     }
 
 }
