@@ -3,73 +3,47 @@
 
 namespace App\Services;
 
-
-use App\Exceptions\BlizzardServiceException;
 use App\Services\Blizzard\BlizzardAuthClient;
-use App\Services\Blizzard\BlizzardUserClient;
 
 class BlizzardAuthService
 {
     private BlizzardAuthClient $blizzardAuthClient;
-    private BlizzardUserClient $blizzardUserClient;
-    private CharacterService $characterService;
 
-    public function __construct(CharacterService $characterService)
+    public function __construct(BlizzardAuthClient $blizzardAuthClient)
     {
-        $this->characterService = $characterService;
+        $this->blizzardAuthClient = $blizzardAuthClient;
     }
 
-    public function retrieveBlizzardAccountDetails(string $region, string $authCode, string $redirectUri)
+    public function refreshAndCacheAccessToken()
     {
-        // call auth client to get oauth token
-        $this->initClient($region);
-        $token = $this->blizzardAuthClient->retrieveOauthAccessToken($authCode, $redirectUri);
-        // call ? client with token to get user data and characters
-        $responses = $this->blizzardUserClient->getUserInfoAndCharacters($token, $region);
-        // save user data
-        $this->saveBlizzardDetailsFromResponse($responses['oauth']);
-        // save characters
-        return $this->saveUserCharacters($responses['characters'], $region);
-//        return json_decode($responses['characters']->getBody());
+        $authResponse = $this->blizzardAuthClient->getToken();
+
+        $token = $authResponse->access_token;
+
+        cache(['token' => $token], now()->addSeconds($authResponse->expires_in - 1000));
+
+        return $token;
     }
 
-    private function initClient($region)
+    public function syncBattleNetDetailsAndGetToken(string $region, string $code, string $redirectUri)
     {
-        $this->blizzardAuthClient = app(BlizzardAuthClient::class, ['region' => $region]);
-        $this->blizzardUserClient = app(BlizzardUserClient::class, ['region' => $region]);
+        $authResponse = $this->blizzardAuthClient->getOauthAccessToken($region, $code, $redirectUri);
+
+        $token = $authResponse->access_token;
+
+        $this->saveOauthDetails($token, $region);
+
+        return $token;
     }
 
-    private function saveBlizzardDetailsFromResponse($blizzardOauthData)
+    private function saveOauthDetails($token, $region)
     {
-        $blizzardOauthData = json_decode($blizzardOauthData->getBody());
+        $blizzardOauthData = $this->blizzardAuthClient->getUserAccountDetails($token, $region);
 
         $user = auth()->user();
         $user->blizzard_id = $blizzardOauthData->id;
         $user->battle_tag = $blizzardOauthData->battletag;
         $user->save();
     }
-
-    private function saveUserCharacters($charactersResponse, $region)
-    {
-        $accountData = json_decode($charactersResponse->getBody());
-        $characters = $accountData->wow_accounts[0]->characters;
-
-        $savedCharacters = [];
-        foreach ($characters as $character) {
-            try {
-                $singleCharacter = $this->characterService->getBasicCharacterInfo(
-                    $region, $character->realm->slug, $character->name
-                );
-
-                array_push($savedCharacters, $singleCharacter);
-            } catch (BlizzardServiceException $e) {
-                continue;
-            }
-
-        }
-
-        return $savedCharacters;
-    }
-
 
 }

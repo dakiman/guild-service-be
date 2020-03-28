@@ -9,14 +9,6 @@ use GuzzleHttp\Promise;
 
 class BlizzardUserClient
 {
-    private string $oauthUrl;
-    private string $apiUrl;
-
-    public function __construct($region)
-    {
-        $this->oauthUrl = str_replace('{region}', $region, config('blizzard.oauth.url'));
-        $this->apiUrl = str_replace('{region}', $region, config('blizzard.api.url'));
-    }
 
     public function getUserInfoAndCharacters(string $token, string $region)
     {

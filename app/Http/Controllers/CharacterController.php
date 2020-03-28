@@ -8,7 +8,7 @@ class CharacterController extends Controller
 {
     private CharacterService $characterService;
 
-    public function __construct()
+    public function __construct(CharacterService $characterService)
     {
         $this->characterService = app()->make(CharacterService::class);
     }

@@ -9,6 +9,13 @@ use GuzzleHttp\Promise;
 
 class BlizzardProfileClient
 {
+    private string $token;
+
+    public function __construct(string $token)
+    {
+        $this->token = $token;
+    }
+
     /*
      * @return array [
      *      'basic' => GuzzleHttp\Psr7\Response,
@@ -56,26 +63,33 @@ class BlizzardProfileClient
             throw new BlizzardServiceException("Couldnt retrieve character $characterName @ $realmName | $region", $e, 404);
         }
     }
-//
-//    public function getUserAccountData(string $token, string $region)
-//    {
-//        $client = $this->buildClientForRegion($region);
-//
-//        $response = $client->get('/profile/user/wow?access_token=' . $token);
-//
-//        return json_decode($response->getBody());
-//    }
 
+    public function getUserCharacters($token, $region)
+    {
+        $apiUrl = str_replace('{region}', $region, config('blizzard.api.url'));
+
+        $client = new Client([
+            'base_uri' => $apiUrl,
+            'headers' => [
+                'Authorization' => 'Bearer ' . $token
+            ],
+            'query' => [
+                'namespace' => 'profile-' . $region,
+                'locale' => 'en_GB'
+            ]
+        ]);
+
+        $response = $client->get('/profile/user/wow');
+
+        return json_decode($response->getBody());
+    }
 
     private function buildClientForRegion(string $region)
     {
-//        $region = strtolower($region);
         $apiUrl = str_replace('{region}', $region, config('blizzard.api.url'));
 
-        $authClient = app(BlizzardAuthClient::class, ['region' => $region]);
-
         return new Client([
-            'headers' => ['Authorization' => 'Bearer ' . $authClient->retrieveToken()],
+            'headers' => ['Authorization' => 'Bearer ' . $this->token],
             'base_uri' => $apiUrl,
             'query' => [
                 'namespace' => 'profile-' . $region,

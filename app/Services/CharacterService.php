@@ -8,14 +8,13 @@ use App\Character;
 use App\DTO\Character\BlizzardCharacter;
 use App\DTO\Character\CharacterMedia;
 use App\DTO\Character\EquipmentItem;
+use App\Exceptions\BlizzardServiceException;
 use App\Services\Blizzard\BlizzardProfileClient;
-use App\Services\Raiderio\RaiderioClient;
 use Str;
 
 class CharacterService
 {
     private BlizzardProfileClient $profileClient;
-    private RaiderioClient $raiderioClient;
 
     public function __construct(BlizzardProfileClient $profileClient)
     {
@@ -51,6 +50,28 @@ class CharacterService
         }
 
         return $character;
+    }
+
+    public function retrieveCharactersFromAccount($token, $region)
+    {
+        $accountData = $this->profileClient->getUserCharacters($token, $region);
+        $characters = $accountData->wow_accounts[0]->characters;
+
+        $savedCharacters = [];
+        foreach ($characters as $character) {
+            try {
+                $singleCharacter = $this->getBasicCharacterInfo(
+                    $region, $character->realm->slug, $character->name
+                );
+
+                array_push($savedCharacters, $singleCharacter);
+            } catch (BlizzardServiceException $e) {
+                continue;
+            }
+
+        }
+
+        return $savedCharacters;
     }
 
     private function getCharacterFromResponse($response): BlizzardCharacter
