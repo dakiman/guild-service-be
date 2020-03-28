@@ -53,7 +53,7 @@ class BlizzardProfileClient
         try {
             return Promise\unwrap($promises);
         } catch (Exception $e) {
-            throw new BlizzardServiceException('Couldnt retrieve character', $e, 404);
+            throw new BlizzardServiceException("Couldnt retrieve character $characterName @ $realmName | $locale", $e, 404);
         }
     }
 

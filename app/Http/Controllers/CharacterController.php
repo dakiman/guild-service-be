@@ -15,12 +15,12 @@ class CharacterController extends Controller
             'locale' => ['required', new RegionRule]
         ]);
 
-        $this->characterService = app()->make(CharacterService::class, ['locale' => request('locale')]);
+        $this->characterService = app()->make(CharacterService::class);
     }
 
     public function character(string $realm, string $characterName)
     {
-        $character = $this->characterService->getBasicCharacterInfo($realm, strtolower($characterName), request('locale'));
+        $character = $this->characterService->getBasicCharacterInfo($realm, $characterName, request('locale'));
         return response()->json(['character' => $character], 200);
     }
 

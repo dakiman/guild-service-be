@@ -28,12 +28,13 @@ class BlizzardController extends Controller
             'redirectUri' => 'required'
         ]);
 
-        $this->blizzardAuthService->retrieveBlizzardAccountDetails(
+        $data = $this->blizzardAuthService->retrieveBlizzardAccountDetails(
             request('code'),
             request('redirectUri'),
             request('locale')
         );
 
-        return response(['message' => 'Success!'], 200);
+
+        return response(['message' => 'Success!', 'data' => $data], 200);
     }
 }

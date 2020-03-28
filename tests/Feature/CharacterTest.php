@@ -59,13 +59,4 @@ class CharacterTestCase extends TestCase
             ->assertStatus(404);
     }
 
-    /** @test */
-    public function adasd()
-    {
-        $response = $this
-            ->post('/api/blizzard-oauth?locale=EU', ['code' => 'EUJW9XLFK2VBU2OWTQX7D811ZDKTCCKZGS', 'redirectUri' => 'http://localhost:8080/blizzard-oauth?locale=eu']);
-
-        dd($response->getContent());
-    }
-
 }

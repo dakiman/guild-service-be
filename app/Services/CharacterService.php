@@ -17,15 +17,15 @@ class CharacterService
     private BlizzardProfileClient $profileClient;
     private RaiderioClient $raiderioClient;
 
-    public function __construct(BlizzardProfileClient $profileClient, RaiderioClient $raiderioClient)
+    public function __construct(BlizzardProfileClient $profileClient)
     {
         $this->profileClient = $profileClient;
-        $this->raiderioClient = $raiderioClient;
     }
 
     public function getBasicCharacterInfo(string $realmName, string $characterName, string $locale): BlizzardCharacter
     {
         $realmName = Str::slug($realmName);
+        $characterName = strtolower($characterName);
 
         $character = Character::where([
             'name' => $characterName,
@@ -51,17 +51,6 @@ class CharacterService
         }
 
         return $character;
-    }
-
-    public function getRaiderioData($response): array
-    {
-        $raiderioData = json_decode($response->getBody());
-
-        return [
-            'mythicPlusRanks' => $raiderioData->mythic_plus_ranks,
-            'gear' => $raiderioData->gear,
-            'raidProgression' => $raiderioData->raid_progression
-        ];
     }
 
     private function getCharacterFromResponse($response): BlizzardCharacter
