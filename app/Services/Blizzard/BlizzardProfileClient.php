@@ -16,9 +16,9 @@ class BlizzardProfileClient
      *      'achievements' => GuzzleHttp\Psr7\Response
      *  ]
      * */
-    public function getGuildInfo(string $realmName, string $guildName, string $locale)
+    public function getGuildInfo(string $realmName, string $guildName, string $region)
     {
-        $client = $this->buildClientForRegion($locale);
+        $client = $this->buildClientForRegion($region);
 
         $promises = [
             'basic' => $client->getAsync("/data/wow/guild/$realmName/$guildName"),
@@ -40,9 +40,9 @@ class BlizzardProfileClient
     *      'equipment' => GuzzleHttp\Psr7\Response
     *  ]
     * */
-    public function getCharacterInfo(string $realmName, string $characterName, string $locale)
+    public function getCharacterInfo(string $realmName, string $characterName, string $region)
     {
-        $client = $this->buildClientForRegion($locale);
+        $client = $this->buildClientForRegion($region);
 
         $promises = [
             'basic' => $client->getAsync("/profile/wow/character/$realmName/$characterName"),
@@ -53,32 +53,32 @@ class BlizzardProfileClient
         try {
             return Promise\unwrap($promises);
         } catch (Exception $e) {
-            throw new BlizzardServiceException("Couldnt retrieve character $characterName @ $realmName | $locale", $e, 404);
+            throw new BlizzardServiceException("Couldnt retrieve character $characterName @ $realmName | $region", $e, 404);
         }
     }
+//
+//    public function getUserAccountData(string $token, string $region)
+//    {
+//        $client = $this->buildClientForRegion($region);
+//
+//        $response = $client->get('/profile/user/wow?access_token=' . $token);
+//
+//        return json_decode($response->getBody());
+//    }
 
-    public function getUserAccountData(string $token, string $locale)
+
+    private function buildClientForRegion(string $region)
     {
-        $client = $this->buildClientForRegion($locale);
+//        $region = strtolower($region);
+        $apiUrl = str_replace('{region}', $region, config('blizzard.api.url'));
 
-        $response = $client->get('/profile/user/wow?access_token=' . $token);
-
-        return json_decode($response->getBody());
-    }
-
-
-    private function buildClientForRegion(string $locale)
-    {
-//        $locale = strtolower($locale);
-        $apiUrl = str_replace('{locale}', $locale, config('blizzard.api.url'));
-
-        $authClient = app(BlizzardAuthClient::class, ['locale' => $locale]);
+        $authClient = app(BlizzardAuthClient::class, ['region' => $region]);
 
         return new Client([
             'headers' => ['Authorization' => 'Bearer ' . $authClient->retrieveToken()],
             'base_uri' => $apiUrl,
             'query' => [
-                'namespace' => 'profile-' . $locale,
+                'namespace' => 'profile-' . $region,
                 'locale' => 'en_GB'
             ]
         ]);

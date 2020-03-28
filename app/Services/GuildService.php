@@ -12,15 +12,15 @@ use Illuminate\Support\Str;
 class GuildService
 {
     private BlizzardProfileClient $profileClient;
-    private string $locale;
+    private string $region;
 
-    public function __construct($locale, BlizzardProfileClient $profileClient)
+    public function __construct($region, BlizzardProfileClient $profileClient)
     {
-        $this->locale = $locale;
+        $this->region = $region;
         $this->profileClient = $profileClient;
     }
 
-    public function getFullGuildInfo(string $realmName, string $guildName, string $locale): BlizzardGuild
+    public function getFullGuildInfo(string $realmName, string $guildName, string $region): BlizzardGuild
     {
         $realmName = Str::slug($realmName);
         $guildName = Str::slug($guildName);
@@ -28,13 +28,13 @@ class GuildService
         $guild = Guild
             ::where('name', $guildName)
             ->where('realm', $realmName)
-            ->where('region', $locale)
+            ->where('region', $region)
             ->first();
 
         if ($guild) {
             return new BlizzardGuild(json_decode($guild->guild_data, true));
         } else {
-            $responses = $this->profileClient->getGuildInfo($realmName, $guildName, $locale);
+            $responses = $this->profileClient->getGuildInfo($realmName, $guildName, $region);
 
             $guild = $this->getGuildFromResponse($responses['basic']);
             $guild->roster = $this->getRosterFromResponse($responses['roster']);
@@ -43,7 +43,7 @@ class GuildService
             Guild::create([
                 'name' => $guildName,
                 'realm' => $realmName,
-                'region' => $locale,
+                'region' => $region,
                 'guild_data' => json_encode($guild)
             ]);
         }
@@ -64,7 +64,7 @@ class GuildService
 
         $roster = [];
         foreach ($data->members as $member) {
-            array_push($roster, RosterCharacter::fromData($member, $this->locale));
+            array_push($roster, RosterCharacter::fromData($member, $this->region));
         }
 
         return $roster;

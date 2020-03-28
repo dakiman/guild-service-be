@@ -17,7 +17,7 @@ class RosterCharacter extends FlexibleDataTransferObject
     public int $rank;
     public string $region;
 
-    public static function fromData(object $member, string $locale)
+    public static function fromData(object $member, string $region)
     {
         $character = $member->character;
         return new self([
@@ -27,7 +27,7 @@ class RosterCharacter extends FlexibleDataTransferObject
             'class' => $character->playable_class->id,
             'race' => $character->playable_race->id,
             'rank' => $member->rank,
-            'region' => $locale
+            'region' => $region
         ]);
     }
 }

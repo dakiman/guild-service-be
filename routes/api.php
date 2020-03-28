@@ -11,8 +11,8 @@
 |
 */
 
-Route::get('/guild/{realm}/{guild}', 'GuildController@guild');
-Route::get('/character/{realm}/{character}', 'CharacterController@character');
+Route::get('/guild/{region}/{realm}/{guild}', 'GuildController@guild');
+Route::get('/character/{region}/{realm}/{character}', 'CharacterController@character');
 
 
 Route::get('/user','Auth\AuthController@user')->middleware('auth');
@@ -23,4 +23,4 @@ Route::post('/logout', 'Auth\AuthController@logout');
 Route::post('/password/forgot', 'Auth\ForgotPasswordController')->name('password.forget');
 Route::post('/password/reset', 'Auth\ResetPasswordController@reset')->name('password.reset');
 
-Route::post('/blizzard-oauth', 'BlizzardController@code');
+Route::post('/{region}/blizzard-oauth', 'BlizzardController@code');

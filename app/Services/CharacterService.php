@@ -22,7 +22,7 @@ class CharacterService
         $this->profileClient = $profileClient;
     }
 
-    public function getBasicCharacterInfo(string $realmName, string $characterName, string $locale): BlizzardCharacter
+    public function getBasicCharacterInfo(string $realmName, string $characterName, string $region): BlizzardCharacter
     {
         $realmName = Str::slug($realmName);
         $characterName = strtolower($characterName);
@@ -30,13 +30,13 @@ class CharacterService
         $character = Character::where([
             'name' => $characterName,
             'realm' => $realmName,
-            'region' => $locale
+            'region' => $region
         ])->first();
 
         if ($character) {
             return new BlizzardCharacter(json_decode($character->character_data, true));
         } else {
-            $responses = $this->profileClient->getCharacterInfo($realmName, $characterName, $locale);
+            $responses = $this->profileClient->getCharacterInfo($realmName, $characterName, $region);
 
             $character = $this->getCharacterFromResponse($responses['basic']);
             $character->media = $this->getCharacterMediaFromResponse($responses['media']);
@@ -45,7 +45,7 @@ class CharacterService
             Character::create([
                 'name' => $characterName,
                 'realm' => $realmName,
-                'region' => $locale,
+                'region' => $region,
                 'character_data' => json_encode($character)
             ]);
         }

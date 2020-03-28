@@ -7,13 +7,12 @@ return [
         'secret' => env('BLIZZARD_CLIENT_SECRET', null)
     ],
 
-    /* TODO replace locale with region (naming) */
     'oauth' => [
-        'url' => "https://{locale}.battle.net",
+        'url' => "https://{region}.battle.net",
     ],
 
     'api' => [
-        'url' => "https://{locale}.api.blizzard.com"
+        'url' => "https://{region}.api.blizzard.com"
     ],
 
     'regions' => [

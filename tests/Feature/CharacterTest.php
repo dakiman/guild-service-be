@@ -8,8 +8,8 @@ use Tests\TestCase;
 class CharacterTestCase extends TestCase
 {
     private $characters = [
-        ['name' => 'Sernaos', 'realm' => 'the-maelstrom', 'locale' => 'eu'],
-        ['name' => 'Vilwarr', 'realm' => 'illidan', 'locale' => 'us'],
+        ['name' => 'Sernaos', 'realm' => 'the-maelstrom', 'region' => 'eu'],
+        ['name' => 'Vilwarr', 'realm' => 'illidan', 'region' => 'us'],
     ];
 
     /** @test */
@@ -23,11 +23,11 @@ class CharacterTestCase extends TestCase
             Character::where([
                 'name' => $character->name,
                 'realm' => $character->realm,
-                'region' => $character->locale
+                'region' => $character->region
             ])->delete();
 
             $this
-                ->get("/api/character/$character->realm/$character->name?locale=$character->locale")
+                ->get("/api/character/$character->region/$character->realm/$character->name")
                 ->assertStatus(200);
         }
     }
@@ -44,7 +44,7 @@ class CharacterTestCase extends TestCase
             $character = (object)$character;
 
             $this
-                ->get("/api/character/$character->realm/$character->name?locale=$character->locale")
+                ->get("/api/character/$character->region/$character->realm/$character->name")
                 ->assertStatus(200);
         }
     }
@@ -55,7 +55,7 @@ class CharacterTestCase extends TestCase
 //        TODO FIX
 //        $this->expectException(BlizzardServiceException::class);
         $this
-            ->get('/api/character/randoBoy/randoRealm?locale=eu')
+            ->get('/api/character/eu/randoBoy/randoRealm')
             ->assertStatus(404);
     }
 

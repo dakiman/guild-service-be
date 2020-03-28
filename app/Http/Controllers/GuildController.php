@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Rules\RegionRule;
 use App\Services\Blizzard\GuildService;
 
 class GuildController extends Controller
@@ -11,16 +10,12 @@ class GuildController extends Controller
 
     public function __construct()
     {
-        request()->validate([
-            'locale' => ['required', new RegionRule]
-        ]);
-
-        $this->guildService = app(GuildService::class, ['locale' => request('locale')]);
+        $this->guildService = app(GuildService::class, ['region' => request('region')]);
     }
 
-    public function guild($realm, $guild)
+    public function guild(string $region, string $realm, string $guild)
     {
-        $guild = $this->guildService->getFullGuildInfo($realm, $guild, request('locale'));
+        $guild = $this->guildService->getFullGuildInfo($realm, $guild, $region);
         return response()->json(['guild' => $guild], 200);
     }
 

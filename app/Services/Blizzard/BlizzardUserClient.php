@@ -12,17 +12,17 @@ class BlizzardUserClient
     private string $oauthUrl;
     private string $apiUrl;
 
-    public function __construct($locale)
+    public function __construct($region)
     {
-        $this->oauthUrl = str_replace('{locale}', $locale, config('blizzard.oauth.url'));
-        $this->apiUrl = str_replace('{locale}', $locale, config('blizzard.api.url'));
+        $this->oauthUrl = str_replace('{region}', $region, config('blizzard.oauth.url'));
+        $this->apiUrl = str_replace('{region}', $region, config('blizzard.api.url'));
     }
 
-    public function getUserInfoAndCharacters(string $token, string $locale)
+    public function getUserInfoAndCharacters(string $token, string $region)
     {
         $promises = [
-            'oauth' => $this->getUserInfo($token, $locale),
-            'characters' => $this->getUserCharacters($token, $locale)
+            'oauth' => $this->getUserInfo($token, $region),
+            'characters' => $this->getUserCharacters($token, $region)
         ];
 
         try {
@@ -32,21 +32,21 @@ class BlizzardUserClient
         }
     }
 
-    private function getUserInfo(string $token, string $locale)
+    private function getUserInfo(string $token, string $region)
     {
-        $client = $this->buildClient($token, $locale);
+        $client = $this->buildClient($token, $region);
 
         return $client->getAsync($this->oauthUrl . '/oauth/userinfo');
     }
 
-    private function getUserCharacters(string $token, string $locale)
+    private function getUserCharacters(string $token, string $region)
     {
-        $client = $this->buildClient($token, $locale);
+        $client = $this->buildClient($token, $region);
 
         return $client->getAsync($this->apiUrl . '/profile/user/wow');
     }
 
-    private function buildClient($token, $locale)
+    private function buildClient($token, $region)
     {
         return new Client([
 //            'base_uri' => $this->oauthUrl,
@@ -54,7 +54,7 @@ class BlizzardUserClient
                 'Authorization' => 'Bearer ' . $token
             ],
             'query' => [
-                'namespace' => 'profile-' . $locale,
+                'namespace' => 'profile-' . $region,
                 'locale' => 'en_GB'
             ]
         ]);

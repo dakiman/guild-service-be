@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Rules\RegionRule;
 use App\Services\CharacterService;
 
 class CharacterController extends Controller
@@ -11,16 +10,12 @@ class CharacterController extends Controller
 
     public function __construct()
     {
-        request()->validate([
-            'locale' => ['required', new RegionRule]
-        ]);
-
         $this->characterService = app()->make(CharacterService::class);
     }
 
-    public function character(string $realm, string $characterName)
+    public function character(string $region, string $realm, string $characterName)
     {
-        $character = $this->characterService->getBasicCharacterInfo($realm, $characterName, request('locale'));
+        $character = $this->characterService->getBasicCharacterInfo($realm, $characterName, $region);
         return response()->json(['character' => $character], 200);
     }
 

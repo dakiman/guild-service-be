@@ -19,24 +19,24 @@ class BlizzardAuthService
         $this->characterService = $characterService;
     }
 
-    public function retrieveBlizzardAccountDetails(string $authCode, string $redirectUri, string $locale)
+    public function retrieveBlizzardAccountDetails(string $authCode, string $redirectUri, string $region)
     {
         // call auth client to get oauth token
-        $this->initClient($locale);
+        $this->initClient($region);
         $token = $this->blizzardAuthClient->retrieveOauthAccessToken($authCode, $redirectUri);
         // call ? client with token to get user data and characters
-        $responses = $this->blizzardUserClient->getUserInfoAndCharacters($token, $locale);
+        $responses = $this->blizzardUserClient->getUserInfoAndCharacters($token, $region);
         // save user data
         $this->saveBlizzardDetailsFromResponse($responses['oauth']);
         // save characters
-        return $this->saveUserCharacters($responses['characters'], $locale);
+        return $this->saveUserCharacters($responses['characters'], $region);
 //        return json_decode($responses['characters']->getBody());
     }
 
-    private function initClient($locale)
+    private function initClient($region)
     {
-        $this->blizzardAuthClient = app(BlizzardAuthClient::class, ['locale' => $locale]);
-        $this->blizzardUserClient = app(BlizzardUserClient::class, ['locale' => $locale]);
+        $this->blizzardAuthClient = app(BlizzardAuthClient::class, ['region' => $region]);
+        $this->blizzardUserClient = app(BlizzardUserClient::class, ['region' => $region]);
     }
 
     private function saveBlizzardDetailsFromResponse($blizzardOauthData)
@@ -49,7 +49,7 @@ class BlizzardAuthService
         $user->save();
     }
 
-    private function saveUserCharacters($charactersResponse, $locale)
+    private function saveUserCharacters($charactersResponse, $region)
     {
         $accountData = json_decode($charactersResponse->getBody());
         $characters = $accountData->wow_accounts[0]->characters;
@@ -60,7 +60,7 @@ class BlizzardAuthService
                 $singleCharacter = $this->characterService->getBasicCharacterInfo(
                     $character->realm->slug,
                     $character->name,
-                    $locale
+                    $region
                 );
 
                 array_push($savedCharacters, $singleCharacter);

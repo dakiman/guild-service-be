@@ -18,18 +18,18 @@ class PerformanceTest extends TestCase
         ]);
 
         $guilds = [
-            ['name' => 'alterac-deviants', 'locale' => 'eu', 'realm' => 'twisting-nether'],
-            ['name' => 'complexity-limit', 'locale' => 'us', 'realm' => 'illidan'],
-            ['name' => 'pieces', 'locale' => 'eu', 'realm' => 'draenor'],
-//            ['name' => 'method', 'locale' => 'eu', 'realm' => 'tarren-mill'],
-            ['name' => 'Aversion', 'locale' => 'eu', 'realm' => 'blackhand'],
-            ['name' => 'walkthrough', 'locale' => 'eu', 'realm' => 'kazzak'],
+            ['name' => 'alterac-deviants', 'region' => 'eu', 'realm' => 'twisting-nether'],
+            ['name' => 'complexity-limit', 'region' => 'us', 'realm' => 'illidan'],
+            ['name' => 'pieces', 'region' => 'eu', 'realm' => 'draenor'],
+//            ['name' => 'method', 'region' => 'eu', 'realm' => 'tarren-mill'],
+            ['name' => 'Aversion', 'region' => 'eu', 'realm' => 'blackhand'],
+            ['name' => 'walkthrough', 'region' => 'eu', 'realm' => 'kazzak'],
         ];
 
         $CHARACTER_CHUNK_SIZE = 10;
 
         foreach ($guilds as $guild) {
-            $response = $client->get($this->getUrlForGuild($guild['realm'], $guild['name'], $guild['locale']));
+            $response = $client->get($this->getUrlForGuild($guild['realm'], $guild['name'], $guild['region']));
             $roster = json_decode($response->getBody())->guild->roster;
 
             $counter = 1;
@@ -58,14 +58,14 @@ class PerformanceTest extends TestCase
         }
     }
 
-    private function getUrlForGuild($realm, $name, $locale)
+    private function getUrlForGuild($realm, $name, $region)
     {
-        return "guild/" . $realm . "/" . $name . "?locale=" . $locale;
+        return "guild/" . $region . "/" . $realm . "/" . $name;
     }
 
-    private function getUrlForCharacter($realm, $name, $locale)
+    private function getUrlForCharacter($realm, $name, $region)
     {
-        return "character/" . $realm . "/" . $name . "?locale=" . $locale;
+        return "character/" . $region . "/" . $realm . "/" . $name;
     }
 
 }

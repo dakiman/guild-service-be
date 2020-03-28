@@ -14,11 +14,11 @@ class BlizzardAuthClient
     private string $clientSecret;
     private string $oauthUrl;
 
-    public function __construct($locale)
+    public function __construct($region)
     {
         $this->clientId = config('blizzard.client.id');
         $this->clientSecret = config('blizzard.client.secret');
-        $this->oauthUrl = str_replace('{locale}', $locale, config('blizzard.oauth.url'));
+        $this->oauthUrl = str_replace('{region}', $region, config('blizzard.oauth.url'));
 
         if (empty($this->clientId) || empty($this->clientSecret)) {
             throw new BlizzardServiceException('Blizzard client id/secret not found.');
