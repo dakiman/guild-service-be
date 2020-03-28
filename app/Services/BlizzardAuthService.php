@@ -19,7 +19,7 @@ class BlizzardAuthService
         $this->characterService = $characterService;
     }
 
-    public function retrieveBlizzardAccountDetails(string $authCode, string $redirectUri, string $region)
+    public function retrieveBlizzardAccountDetails(string $region, string $authCode, string $redirectUri)
     {
         // call auth client to get oauth token
         $this->initClient($region);
@@ -58,9 +58,7 @@ class BlizzardAuthService
         foreach ($characters as $character) {
             try {
                 $singleCharacter = $this->characterService->getBasicCharacterInfo(
-                    $character->realm->slug,
-                    $character->name,
-                    $region
+                    $region, $character->realm->slug, $character->name
                 );
 
                 array_push($savedCharacters, $singleCharacter);

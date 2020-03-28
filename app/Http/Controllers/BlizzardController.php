@@ -22,9 +22,9 @@ class BlizzardController extends Controller
         ]);
 
         $data = $this->blizzardAuthService->retrieveBlizzardAccountDetails(
+            request('region'),
             request('code'),
-            request('redirectUri'),
-            request('region')
+            request('redirectUri')
         );
 
 

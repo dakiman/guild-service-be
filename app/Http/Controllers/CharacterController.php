@@ -15,7 +15,7 @@ class CharacterController extends Controller
 
     public function character(string $region, string $realm, string $characterName)
     {
-        $character = $this->characterService->getBasicCharacterInfo($realm, $characterName, $region);
+        $character = $this->characterService->getBasicCharacterInfo($region, $realm, $characterName);
         return response()->json(['character' => $character], 200);
     }
 

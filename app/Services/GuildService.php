@@ -20,7 +20,7 @@ class GuildService
         $this->profileClient = $profileClient;
     }
 
-    public function getFullGuildInfo(string $realmName, string $guildName, string $region): BlizzardGuild
+    public function getFullGuildInfo(string $region, string $realmName, string $guildName): BlizzardGuild
     {
         $realmName = Str::slug($realmName);
         $guildName = Str::slug($guildName);
@@ -34,7 +34,7 @@ class GuildService
         if ($guild) {
             return new BlizzardGuild(json_decode($guild->guild_data, true));
         } else {
-            $responses = $this->profileClient->getGuildInfo($realmName, $guildName, $region);
+            $responses = $this->profileClient->getGuildInfo($region, $realmName, $guildName);
 
             $guild = $this->getGuildFromResponse($responses['basic']);
             $guild->roster = $this->getRosterFromResponse($responses['roster']);

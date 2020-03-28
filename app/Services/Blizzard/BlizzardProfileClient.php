@@ -16,7 +16,7 @@ class BlizzardProfileClient
      *      'achievements' => GuzzleHttp\Psr7\Response
      *  ]
      * */
-    public function getGuildInfo(string $realmName, string $guildName, string $region)
+    public function getGuildInfo(string $region, string $realmName, string $guildName)
     {
         $client = $this->buildClientForRegion($region);
 
@@ -40,7 +40,7 @@ class BlizzardProfileClient
     *      'equipment' => GuzzleHttp\Psr7\Response
     *  ]
     * */
-    public function getCharacterInfo(string $realmName, string $characterName, string $region)
+    public function getCharacterInfo(string $region, string $realmName, string $characterName)
     {
         $client = $this->buildClientForRegion($region);
 
