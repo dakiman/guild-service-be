@@ -52,9 +52,8 @@ class AuthController extends Controller
     public function user()
     {
         return response()->json([
-            'user' => \Auth::user(),
-            'characters' => \Auth::user()->characters
-        ], 200);
+            'user' =>  auth()->user()->with('characters'),
+        ]);
     }
 
     private function respondWithToken($token)
@@ -63,8 +62,7 @@ class AuthController extends Controller
             'accessToken' => $token,
             'tokenType' => 'bearer',
             'expiresIn' => Auth::factory()->getTTL() * 60,
-            'user' => auth()->user(),
-            'characters' => auth()->user()->characters
+            'user' => User::with('characters')->find(auth()->id()),
         ]);
     }
 }
