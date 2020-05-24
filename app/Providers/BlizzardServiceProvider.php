@@ -23,7 +23,7 @@ class BlizzardServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(BlizzardProfileClient::class, function () {
-            $token = cache('token'); // must be defaulted to null, or you cant call the command
+            $token = cache('token');
 
             if(empty($token)) {
                 $blizzardAuthService = app(BlizzardAuthService::class);

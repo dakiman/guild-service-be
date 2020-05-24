@@ -17,7 +17,7 @@ class BlizzardController extends Controller
         $this->characterService = $characterService;
     }
 
-    public function code($region)
+    public function code(string $region)
     {
         request()->validate([
             'code' => 'required',
