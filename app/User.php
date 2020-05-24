@@ -60,4 +60,9 @@ class User extends Authenticatable implements JWTSubject
     {
         $this->notify(new ResetPassword($token));
     }
+
+    public function characters()
+    {
+        return $this->hasMany(Character::class);
+    }
 }

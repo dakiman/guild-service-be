@@ -21,7 +21,7 @@ class CharacterService
         $this->profileClient = $profileClient;
     }
 
-    public function getBasicCharacterInfo(string $region, string $realmName, string $characterName): BlizzardCharacter
+    public function getBasicCharacterInfo(string $region, string $realmName, string $characterName, int $ownerId = null): Character
     {
         $realmName = Str::slug($realmName);
         $characterName = strtolower($characterName);
@@ -33,19 +33,21 @@ class CharacterService
         ])->first();
 
         if ($character) {
-            return new BlizzardCharacter(json_decode($character->character_data, true));
+            return $character;
         } else {
             $responses = $this->profileClient->getCharacterInfo($region, $realmName, $characterName);
 
-            $character = $this->getCharacterFromResponse($responses['basic']);
-            $character->media = $this->getCharacterMediaFromResponse($responses['media']);
-            $character->equipment = $this->getEquipmentFromResponse($responses['equipment']);
+            $characterData = $this->getCharacterFromResponse($responses['basic']);
+            $characterData->media = $this->getCharacterMediaFromResponse($responses['media']);
+            $characterData->equipment = $this->getEquipmentFromResponse($responses['equipment']);
 
-            Character::create([
+            $character = Character::create([
                 'name' => $characterName,
                 'realm' => $realmName,
                 'region' => $region,
-                'character_data' => json_encode($character)
+                'user_id' => $ownerId,
+                'faction' => $characterData->faction,
+                'character_data' => json_encode($characterData)
             ]);
         }
 
@@ -58,10 +60,12 @@ class CharacterService
         $characters = $accountData->wow_accounts[0]->characters;
 
         $savedCharacters = [];
+        $ownerId = auth()->user()->id;
+
         foreach ($characters as $character) {
             try {
                 $singleCharacter = $this->getBasicCharacterInfo(
-                    $region, $character->realm->slug, $character->name
+                    $region, $character->realm->slug, $character->name, $ownerId
                 );
 
                 array_push($savedCharacters, $singleCharacter);
