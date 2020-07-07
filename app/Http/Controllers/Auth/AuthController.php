@@ -52,7 +52,7 @@ class AuthController extends Controller
     public function user()
     {
         return response()->json([
-            'user' =>  auth()->user()->with('characters'),
+            'user' =>  auth()->user(),
         ]);
     }
 

@@ -37,16 +37,15 @@ class CharacterService
         } else {
             $responses = $this->profileClient->getCharacterInfo($region, $realmName, $characterName);
 
-            $characterData = $this->getCharacterFromResponse($responses['basic']);
-            $characterData->media = $this->getCharacterMediaFromResponse($responses['media']);
-            $characterData->equipment = $this->getEquipmentFromResponse($responses['equipment']);
+            $characterData = json_decode($responses['basic']->getBody());
+            $characterData->media = json_decode($responses['media']->getBody());
+            $characterData->equipment = json_decode($responses['equipment']->getBody());
 
             $character = Character::create([
                 'name' => $characterName,
                 'realm' => $realmName,
                 'region' => $region,
                 'user_id' => $ownerId,
-                'faction' => $characterData->faction,
                 'character_data' => json_encode($characterData)
             ]);
         }
@@ -78,28 +77,4 @@ class CharacterService
         return $savedCharacters;
     }
 
-    private function getCharacterFromResponse($response): BlizzardCharacter
-    {
-        $character = json_decode($response->getBody());
-        return BlizzardCharacter::fromData($character);
-    }
-
-    private function getCharacterMediaFromResponse($response): CharacterMedia
-    {
-        $media = json_decode($response->getBody());
-        return CharacterMedia::fromData($media);
-    }
-
-    /** @return EquipmentItem[] */
-    private function getEquipmentFromResponse($response)
-    {
-        $data = json_decode($response->getBody());
-
-        $items = [];
-        foreach ($data->equipped_items as $item) {
-            array_push($items, EquipmentItem::fromData($item));
-        }
-
-        return $items;
-    }
 }

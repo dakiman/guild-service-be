@@ -15,4 +15,9 @@ class Character extends Model
         return $this->hasOne(User::class);
     }
 
+    public function getCharacterDataAttribute()
+    {
+        return json_decode($this->attributes['character_data']);
+    }
+
 }

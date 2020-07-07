@@ -20,7 +20,7 @@ class GuildService
         $this->profileClient = $profileClient;
     }
 
-    public function getFullGuildInfo(string $region, string $realmName, string $guildName): BlizzardGuild
+    public function getFullGuildInfo(string $region, string $realmName, string $guildName)
     {
         $realmName = Str::slug($realmName);
         $guildName = Str::slug($guildName);
@@ -32,55 +32,23 @@ class GuildService
             ->first();
 
         if ($guild) {
-            return new BlizzardGuild(json_decode($guild->guild_data, true));
+            return $guild;
         } else {
             $responses = $this->profileClient->getGuildInfo($region, $realmName, $guildName);
 
-            $guild = $this->getGuildFromResponse($responses['basic']);
-            $guild->roster = $this->getRosterFromResponse($responses['roster']);
-            $guild->achievements = $this->getAchievementsFromResponse($responses['achievements']);
+            $guildData = json_decode($responses['basic']->getBody());
+            $guildData->roster = json_decode($responses['roster']->getBody());
+            $guildData->achievements = json_decode($responses['achievements']->getBody());
 
-            Guild::create([
+            $guild = Guild::create([
                 'name' => $guildName,
                 'realm' => $realmName,
                 'region' => $region,
-                'guild_data' => json_encode($guild)
+                'guild_data' => json_encode($guildData)
             ]);
         }
 
         return $guild;
-    }
-
-    private function getGuildFromResponse(Response $response): BlizzardGuild
-    {
-        $guild = json_decode($response->getBody());
-        return BlizzardGuild::fromData($guild);
-    }
-
-    /** @return RosterCharacter[] */
-    private function getRosterFromResponse(Response $response)
-    {
-        $data = json_decode($response->getBody());
-
-        $roster = [];
-        foreach ($data->members as $member) {
-            array_push($roster, RosterCharacter::fromData($member, $this->region));
-        }
-
-        return $roster;
-    }
-
-    /** @return GuildAchievement[] */
-    private function getAchievementsFromResponse(Response $response)
-    {
-        $data = json_decode($response->getBody());
-
-        $achievements = [];
-        foreach ($data->achievements as $singleAchievement) {
-            array_push($achievements, GuildAchievement::fromData($singleAchievement));
-        }
-
-        return $achievements;
     }
 
 }
