@@ -30,7 +30,7 @@ class PerformanceTest extends TestCase
 
         foreach ($guilds as $guild) {
             $response = $client->get($this->getUrlForGuild($guild['realm'], $guild['name'], $guild['region']));
-            $roster = json_decode($response->getBody())->guild->roster;
+            $roster = json_decode($response->getBody())->guild->guild_data->roster->members;
 
             $counter = 1;
             $chunks = collect($roster)->chunk($CHARACTER_CHUNK_SIZE);
@@ -39,7 +39,7 @@ class PerformanceTest extends TestCase
 
                 $urls = [];
                 foreach($character as $member) {
-                    array_push($urls, $this->getUrlForCharacter($member->realm, $member->name, $member->region));
+                    array_push($urls, $this->getUrlForCharacter($member->character->realm->slug, $member->character->name, $guild['region']));
                 }
 
                 Log::info("Built URLs for chunk no $counter", $urls);
@@ -51,8 +51,8 @@ class PerformanceTest extends TestCase
 
                 try {
                     Promise\unwrap($promises);
-                } catch (\Exception $e) {
-                    Log::info("Exception happened when unwrapping promises");
+                } catch (\Throwable $e) {
+                    Log::info("Exception happened when unwrapping promises", $e->getTrace());
                 }
             }
         }
