@@ -13,7 +13,7 @@
 
 Route::get('/guild/{region}/{realm}/{guild}', 'GuildController@guild');
 
-Route::get('/character/{region}/{realm}/{character}', 'CharacterController@character');
+Route::get('/character/{region}/{realm}/{characterName}', 'CharacterController@character');
 Route::patch('/character/{character}/recruitment', 'CharacterController@toggleRecruitment');
 
 

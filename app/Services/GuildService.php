@@ -6,7 +6,6 @@ use App\DTO\Guild\BlizzardGuild;
 use App\DTO\Guild\GuildAchievement;
 use App\DTO\Guild\RosterCharacter;
 use App\Guild;
-use GuzzleHttp\Psr7\Response;
 use Illuminate\Support\Str;
 
 class GuildService
