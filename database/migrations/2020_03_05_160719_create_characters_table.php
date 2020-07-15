@@ -18,6 +18,7 @@ class CreateCharactersTable extends Migration
             $table->string('name');
             $table->string('realm');
             $table->string('region');
+            $table->boolean('recruitment')->default(false);
             $table
                 ->foreignId('user_id')
                 ->nullable()

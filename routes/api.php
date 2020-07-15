@@ -12,7 +12,9 @@
 */
 
 Route::get('/guild/{region}/{realm}/{guild}', 'GuildController@guild');
+
 Route::get('/character/{region}/{realm}/{character}', 'CharacterController@character');
+Route::patch('/character/{character}/recruitment', 'CharacterController@toggleRecruitment');
 
 
 Route::get('/user','Auth\AuthController@user')->middleware('auth');
