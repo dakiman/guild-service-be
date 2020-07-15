@@ -52,7 +52,7 @@ class AuthController extends Controller
     public function user()
     {
         return response()->json([
-            'user' =>  auth()->user(),
+            'user' =>  User::with('characters')->find(auth()->id())
         ]);
     }
 

@@ -32,6 +32,10 @@ class BlizzardController extends Controller
 
         $characters = $this->characterService->retrieveCharactersFromAccount($token, $region);
 
+        $user = auth()->user();
+        $user->battle_net_sync_at = now();
+        $user->save();
+
         return response(['message' => 'Success!', 'characters' => $characters], 200);
     }
 }
