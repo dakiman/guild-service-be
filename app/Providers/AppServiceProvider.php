@@ -30,9 +30,5 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         Schema::defaultStringLength(191);
-
-        Str::macro('deslug', function ($string) {
-            return ucwords(str_replace('-', ' ', $string), ' ');
-        });
     }
 }

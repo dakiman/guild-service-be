@@ -14,7 +14,11 @@ class CreateUsersTable extends Migration
     public function up()
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->bigIncrements('id');
+            $table->bigIncrements('id')->unsigned();
+            $table->string('bnet_id')->nullable();
+            $table->string('bnet_tag')->nullable();
+            $table->string('bnet_region', 3)->nullable();
+            $table->timestamp('bnet_sync_at')->nullable();
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();

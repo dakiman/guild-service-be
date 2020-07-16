@@ -8,11 +8,11 @@ return [
     ],
 
     'oauth' => [
-        'url' => "https://eu.battle.net/oauth/token"
+        'url' => "https://{region}.battle.net",
     ],
 
     'api' => [
-        'url' => "https://{locale}.api.blizzard.com"
+        'url' => "https://{region}.api.blizzard.com"
     ],
 
     'regions' => [

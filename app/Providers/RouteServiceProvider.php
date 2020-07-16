@@ -24,6 +24,15 @@ class RouteServiceProvider extends ServiceProvider
     public function boot()
     {
         //
+        $regions = config('blizzard.regions');
+        $regionsRegex = "";
+
+        foreach($regions as $region) {
+            $regionsRegex .= $region . "|";
+            $regionsRegex .= strtolower($region) . "|";
+        }
+
+        Route::pattern('region', $regionsRegex);
 
         parent::boot();
     }
