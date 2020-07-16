@@ -1,11 +1,9 @@
 <?php
 
-namespace App\Services\Blizzard;
+namespace App\Services;
 
-use App\DTO\Guild\BlizzardGuild;
-use App\DTO\Guild\GuildAchievement;
-use App\DTO\Guild\RosterCharacter;
 use App\Guild;
+use App\Services\Blizzard\BlizzardProfileClient;
 use Illuminate\Support\Str;
 
 class GuildService

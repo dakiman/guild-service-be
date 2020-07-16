@@ -15,12 +15,13 @@ class CreateUsersTable extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->bigIncrements('id')->unsigned();
-            $table->string('blizzard_id')->nullable();
-            $table->string('battle_tag')->nullable();
+            $table->string('bnet_id')->nullable();
+            $table->string('bnet_tag')->nullable();
+            $table->string('bnet_region', 3)->nullable();
+            $table->timestamp('bnet_sync_at')->nullable();
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
-            $table->timestamp('battle_net_sync_at')->nullable();
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();

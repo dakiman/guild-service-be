@@ -41,8 +41,10 @@ class BlizzardAuthService
         $blizzardOauthData = $this->blizzardAuthClient->getUserAccountDetails($token, $region);
 
         $user = auth()->user();
-        $user->blizzard_id = $blizzardOauthData->id;
-        $user->battle_tag = $blizzardOauthData->battletag;
+        $user->bnet_sync_at = now();
+        $user->bnet_id = $blizzardOauthData->id;
+        $user->bnet_tag = $blizzardOauthData->battletag;
+        $user->bnet_region = $region;
         $user->save();
     }
 

@@ -3,10 +3,8 @@
 
 namespace App\Services\Blizzard;
 
-
 use App\Exceptions\BlizzardServiceException;
 use GuzzleHttp\Client;
-use GuzzleHttp\Promise;
 
 class BlizzardAuthClient
 {

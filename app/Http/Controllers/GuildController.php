@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\Blizzard\GuildService;
+use App\Services\GuildService;
 
 class GuildController extends Controller
 {

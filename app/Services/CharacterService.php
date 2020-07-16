@@ -3,11 +3,7 @@
 
 namespace App\Services;
 
-
 use App\Character;
-use App\DTO\Character\BlizzardCharacter;
-use App\DTO\Character\CharacterMedia;
-use App\DTO\Character\EquipmentItem;
 use App\Exceptions\BlizzardServiceException;
 use App\Services\Blizzard\BlizzardProfileClient;
 use Str;
@@ -33,6 +29,10 @@ class CharacterService
         ])->first();
 
         if ($character) {
+            if($ownerId != null) {
+                $character->user_id = $ownerId;
+                $character->save();
+            }
             return $character;
         } else {
             $responses = $this->profileClient->getCharacterInfo($region, $realmName, $characterName);
