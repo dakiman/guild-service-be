@@ -9,11 +9,9 @@ use Illuminate\Support\Str;
 class GuildService
 {
     private BlizzardProfileClient $profileClient;
-    private string $region;
 
-    public function __construct($region, BlizzardProfileClient $profileClient)
+    public function __construct(BlizzardProfileClient $profileClient)
     {
-        $this->region = $region;
         $this->profileClient = $profileClient;
     }
 
@@ -29,6 +27,8 @@ class GuildService
             ->first();
 
         if ($guild) {
+            $guild->num_of_searches += 1;
+            $guild->save();
             return $guild;
         } else {
             $responses = $this->profileClient->getGuildInfo($region, $realmName, $guildName);
@@ -46,6 +46,16 @@ class GuildService
         }
 
         return $guild;
+    }
+
+    public function getRecentlySearched()
+    {
+        return Guild::orderBy('updated_at', 'desc')->limit(5)->get(['name', 'region', 'realm']);
+    }
+
+    public function getMostPopular()
+    {
+        return Guild::orderBy('num_of_searches', 'desc')->limit(5)->get(['name', 'region', 'realm']);
     }
 
 }

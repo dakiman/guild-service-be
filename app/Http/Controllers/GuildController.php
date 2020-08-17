@@ -8,15 +8,24 @@ class GuildController extends Controller
 {
     private GuildService $guildService;
 
-    public function __construct()
+    public function __construct(GuildService $guildService)
     {
-        $this->guildService = app(GuildService::class, ['region' => request('region')]);
+        $this->guildService = $guildService;
     }
 
     public function guild(string $region, string $realm, string $guildName)
     {
-        $guildName = $this->guildService->getFullGuildInfo($region, $realm, $guildName);
-        return response()->json(['guild' => $guildName], 200);
+        return response()->json([
+            'guild' => $this->guildService->getFullGuildInfo($region, $realm, $guildName)
+        ]);
+    }
+
+    public function popular()
+    {
+        return response()->json([
+            'recently_searched' => $this->guildService->getRecentlySearched(),
+            'most_popular' => $this->guildService->getMostPopular()
+        ]);
     }
 
 }

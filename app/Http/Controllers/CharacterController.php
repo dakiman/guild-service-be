@@ -11,13 +11,14 @@ class CharacterController extends Controller
 
     public function __construct(CharacterService $characterService)
     {
-        $this->characterService = app()->make(CharacterService::class);
+        $this->characterService = $characterService;
     }
 
     public function character(string $region, string $realm, string $characterName)
     {
-        $character = $this->characterService->getBasicCharacterInfo($region, $realm, $characterName);
-        return response()->json(['character' => $character], 200);
+        return response()->json([
+            'character' => $this->characterService->getBasicCharacterInfo($region, $realm, $characterName)
+        ]);
     }
 
     public function toggleRecruitment(Character $character)
@@ -26,6 +27,14 @@ class CharacterController extends Controller
         $character->save();
 
         return response()->json(['message' => 'Recruitment status toggled!', 'status' => $character->recruitment]);
+    }
+
+    public function popular()
+    {
+        return response()->json([
+            'recently_searched' => $this->characterService->getRecentlySearched(),
+            'most_popular' => $this->characterService->getMostPopular()
+        ]);
     }
 
 }
