@@ -5,7 +5,7 @@ namespace Tests\Feature;
 use App\Character;
 use Tests\TestCase;
 
-class CharacterTestCase extends TestCase
+class GuildTest extends TestCase
 {
 
     /** @test */

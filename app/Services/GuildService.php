@@ -27,21 +27,14 @@ class GuildService
             ->first();
 
         if ($guild) {
-            $guild->num_of_searches += 1;
+            $guild->increasePopularity();
             $guild->save();
-            return $guild;
         } else {
-            $responses = $this->profileClient->getGuildInfo($region, $realmName, $guildName);
-
-            $guildData = json_decode($responses['basic']->getBody());
-            $guildData->roster = json_decode($responses['roster']->getBody());
-            $guildData->achievements = json_decode($responses['achievements']->getBody());
-
             $guild = Guild::create([
                 'name' => $guildName,
                 'realm' => $realmName,
                 'region' => $region,
-                'guild_data' => json_encode($guildData)
+                'guild_data' => $this->getGuildData($region, $realmName, $guildName)
             ]);
         }
 
@@ -50,12 +43,28 @@ class GuildService
 
     public function getRecentlySearched()
     {
-        return Guild::orderBy('updated_at', 'desc')->limit(5)->get(['name', 'region', 'realm']);
+        return Guild
+            ::orderBy('updated_at', 'desc')
+            ->limit(5)
+            ->get(['name', 'region', 'realm']);
     }
 
     public function getMostPopular()
     {
-        return Guild::orderBy('num_of_searches', 'desc')->limit(5)->get(['name', 'region', 'realm']);
+        return Guild
+            ::orderBy('num_of_searches', 'desc')
+            ->limit(5)
+            ->get(['name', 'region', 'realm']);
+    }
+
+    private function getGuildData(string $region, string $realmName, string $guildName)
+    {
+        $responses = $this->profileClient->getGuildInfo($region, $realmName, $guildName);
+
+        $guildData = json_decode($responses['basic']->getBody());
+        $guildData->roster = json_decode($responses['roster']->getBody());
+        $guildData->achievements = json_decode($responses['achievements']->getBody());
+        return json_encode($guildData);
     }
 
 }

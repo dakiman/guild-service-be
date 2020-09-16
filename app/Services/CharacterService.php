@@ -29,27 +29,20 @@ class CharacterService
         ])->first();
 
         if ($character) {
-            if($ownerId != null) {
+            if ($ownerId != null) {
                 $character->user_id = $ownerId;
             }
-            $character->num_of_searches += 1;
+            $character->increasePopularity();
             $character->save();
-            return $character;
         } else {
-            $responses = $this->profileClient->getCharacterInfo($region, $realmName, $characterName);
-            $characterData = json_decode($responses['basic']->getBody());
-            $characterData->media = json_decode($responses['media']->getBody());
-            $characterData->equipment = json_decode($responses['equipment']->getBody());
-
             $character = Character::create([
                 'name' => $characterName,
                 'realm' => $realmName,
                 'region' => $region,
                 'user_id' => $ownerId,
-                'character_data' => json_encode($characterData)
+                'character_data' => $this->getCharacterData($region, $realmName, $characterName)
             ]);
         }
-
         return $character;
     }
 
@@ -79,12 +72,27 @@ class CharacterService
 
     public function getRecentlySearched()
     {
-        return Character::orderBy('updated_at', 'desc')->limit(5)->get(['name', 'region', 'realm']);
+        return Character
+            ::orderBy('updated_at', 'desc')
+            ->limit(5)
+            ->get(['name', 'region', 'realm']);
     }
 
     public function getMostPopular()
     {
-        return Character::orderBy('num_of_searches', 'desc')->limit(5)->get(['name', 'region', 'realm']);
+        return Character
+            ::orderBy('num_of_searches', 'desc')
+            ->limit(5)
+            ->get(['name', 'region', 'realm']);
+    }
+
+    private function getCharacterData(string $region, string $realmName, string $characterName)
+    {
+        $responses = $this->profileClient->getCharacterInfo($region, $realmName, $characterName);
+        $characterData = json_decode($responses['basic']->getBody());
+        $characterData->media = json_decode($responses['media']->getBody());
+        $characterData->equipment = json_decode($responses['equipment']->getBody());
+        return $characterData;
     }
 
 }
