@@ -3,89 +3,78 @@
 
 namespace App\Services;
 
-
 use App\Character;
-use App\DTO\Character\BlizzardCharacter;
-use App\DTO\Character\CharacterMedia;
-use App\DTO\Character\EquipmentItem;
+use App\Exceptions\BlizzardServiceException;
 use App\Services\Blizzard\BlizzardProfileClient;
-use App\Services\Raiderio\RaiderioClient;
 use Str;
 
 class CharacterService
 {
     private BlizzardProfileClient $profileClient;
-    private RaiderioClient $raiderioClient;
 
-    public function __construct(BlizzardProfileClient $profileClient, RaiderioClient $raiderioClient)
+    public function __construct(BlizzardProfileClient $profileClient)
     {
         $this->profileClient = $profileClient;
-        $this->raiderioClient = $raiderioClient;
     }
 
-    public function getBasicCharacterInfo(string $realmName, string $characterName, string $locale): BlizzardCharacter
+    public function getBasicCharacterInfo(string $region, string $realmName, string $characterName, int $ownerId = null): Character
     {
         $realmName = Str::slug($realmName);
+        $characterName = strtolower($characterName);
 
         $character = Character::where([
             'name' => $characterName,
             'realm' => $realmName,
-            'region' => $locale
+            'region' => $region
         ])->first();
 
         if ($character) {
-            return new BlizzardCharacter(json_decode($character->character_data, true));
+            if($ownerId != null) {
+                $character->user_id = $ownerId;
+                $character->save();
+            }
+            return $character;
         } else {
-            $responses = $this->profileClient->getCharacterInfo($realmName, $characterName, $locale);
+            $responses = $this->profileClient->getCharacterInfo($region, $realmName, $characterName);
 
-            $character = $this->getCharacterFromResponse($responses['basic']);
-            $character->media = $this->getCharacterMediaFromResponse($responses['media']);
-            $character->equipment = $this->getEquipmentFromResponse($responses['equipment']);
+            $characterData = json_decode($responses['basic']->getBody());
+            $characterData->media = json_decode($responses['media']->getBody());
+            $characterData->equipment = json_decode($responses['equipment']->getBody());
 
-            Character::create([
+            $character = Character::create([
                 'name' => $characterName,
                 'realm' => $realmName,
-                'region' => $locale,
-                'character_data' => json_encode($character)
+                'region' => $region,
+                'user_id' => $ownerId,
+                'character_data' => json_encode($characterData)
             ]);
         }
 
         return $character;
     }
 
-    public function getRaiderioData($response): array
+    public function retrieveCharactersFromAccount($token, $region)
     {
-        $raiderioData = json_decode($response->getBody());
+        $accountData = $this->profileClient->getUserCharacters($token, $region);
+        $characters = $accountData->wow_accounts[0]->characters;
 
-        return [
-            'mythicPlusRanks' => $raiderioData->mythic_plus_ranks,
-            'gear' => $raiderioData->gear,
-            'raidProgression' => $raiderioData->raid_progression
-        ];
-    }
+        $savedCharacters = [];
+        $ownerId = auth()->user()->id;
 
-    private function getCharacterFromResponse($response): BlizzardCharacter
-    {
-        $character = json_decode($response->getBody());
-        return BlizzardCharacter::fromData($character);
-    }
+        foreach ($characters as $character) {
+            try {
+                $singleCharacter = $this->getBasicCharacterInfo(
+                    $region, $character->realm->slug, $character->name, $ownerId
+                );
 
-    private function getCharacterMediaFromResponse($response): CharacterMedia
-    {
-        $media = json_decode($response->getBody());
-        return CharacterMedia::fromData($media);
-    }
+                array_push($savedCharacters, $singleCharacter);
+            } catch (BlizzardServiceException $e) {
+                continue;
+            }
 
-    /** @return EquipmentItem[] */
-    private function getEquipmentFromResponse($response)
-    {
-        $data = json_decode($response->getBody());
-
-        $items = [];
-        foreach ($data->equipped_items as $item) {
-            array_push($items, EquipmentItem::fromData($item));
         }
 
-        return $items;
+        return $savedCharacters;
     }
+
 }

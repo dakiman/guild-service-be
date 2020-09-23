@@ -2,26 +2,30 @@
 
 namespace App\Http\Controllers;
 
-use App\Rules\RegionRule;
+use App\Character;
 use App\Services\CharacterService;
 
 class CharacterController extends Controller
 {
     private CharacterService $characterService;
 
-    public function __construct()
+    public function __construct(CharacterService $characterService)
     {
-        request()->validate([
-            'locale' => ['required', new RegionRule]
-        ]);
-
-        $this->characterService = app()->make(CharacterService::class, ['locale' => request('locale')]);
+        $this->characterService = app()->make(CharacterService::class);
     }
 
-    public function character(string $realm, string $characterName)
+    public function character(string $region, string $realm, string $characterName)
     {
-        $character = $this->characterService->getBasicCharacterInfo($realm, strtolower($characterName), request('locale'));
+        $character = $this->characterService->getBasicCharacterInfo($region, $realm, $characterName);
         return response()->json(['character' => $character], 200);
+    }
+
+    public function toggleRecruitment(Character $character)
+    {
+        $character->recruitment = !$character->recruitment;
+        $character->save();
+
+        return response()->json(['message' => 'Recruitment status toggled!', 'status' => $character->recruitment]);
     }
 
 }

@@ -21,7 +21,7 @@ class AuthController extends Controller
 
         $user = User::create($request->all());
 
-        $token = Auth::login($user);
+        $token = auth()->login($user);
 
         return $this->respondWithToken($token);
     }
@@ -35,8 +35,8 @@ class AuthController extends Controller
 
         $credentials = $request->only(['email', 'password']);
 
-        if (!$token = Auth::attempt($credentials)) {
-            return Response::json(['error' => 'Invalid email or password entered.'], 401);
+        if (!$token = auth()->attempt($credentials)) {
+            return response()->json(['error' => 'Invalid email or password entered.'], 401);
         }
 
         return $this->respondWithToken($token);
@@ -44,18 +44,25 @@ class AuthController extends Controller
 
     public function logout()
     {
-        Auth::logout();
+        auth()->logout();
 
-        return Response::json(['message' => 'Successfully logged out']);
+        return response()->json(['message' => 'Successfully logged out']);
+    }
+
+    public function user()
+    {
+        return response()->json([
+            'user' =>  User::with('characters')->find(auth()->id())
+        ]);
     }
 
     private function respondWithToken($token)
     {
-        return Response::json([
+        return response()->json([
             'accessToken' => $token,
             'tokenType' => 'bearer',
             'expiresIn' => Auth::factory()->getTTL() * 60,
-            'user' => auth()->user()
+            'user' => User::with('characters')->find(auth()->id()),
         ]);
     }
 }

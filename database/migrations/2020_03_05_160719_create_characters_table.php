@@ -14,10 +14,16 @@ class CreateCharactersTable extends Migration
     public function up()
     {
         Schema::create('characters', function (Blueprint $table) {
-            $table->bigIncrements('id');
+            $table->bigIncrements('id')->unsigned();
             $table->string('name');
             $table->string('realm');
             $table->string('region');
+            $table->boolean('recruitment')->default(false);
+            $table
+                ->foreignId('user_id')
+                ->nullable()
+                ->references('id')
+                ->on('users');
             $table->json('character_data');
             $table->timestamps();
         });

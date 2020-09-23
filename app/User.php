@@ -39,6 +39,7 @@ class User extends Authenticatable implements JWTSubject
         'email_verified_at' => 'datetime',
     ];
 
+
     public function getJWTIdentifier()
     {
         return $this->getKey();
@@ -59,5 +60,10 @@ class User extends Authenticatable implements JWTSubject
     public function sendPasswordResetNotification($token)
     {
         $this->notify(new ResetPassword($token));
+    }
+
+    public function characters()
+    {
+        return $this->hasMany(Character::class);
     }
 }
