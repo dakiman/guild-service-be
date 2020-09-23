@@ -64,7 +64,7 @@ class GuildService
         $guildData = json_decode($responses['basic']->getBody());
         $guildData->roster = json_decode($responses['roster']->getBody());
         $guildData->achievements = json_decode($responses['achievements']->getBody());
-        return json_encode($guildData);
+        return $guildData;
     }
 
 }

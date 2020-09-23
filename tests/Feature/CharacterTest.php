@@ -3,9 +3,10 @@
 namespace Tests\Feature;
 
 use App\Character;
+use App\Exceptions\BlizzardServiceException;
 use Tests\TestCase;
 
-class CharacterTestCase extends TestCase
+class CharacterTest extends TestCase
 {
     private $characters = [
         ['name' => 'Sernaos', 'realm' => 'the-maelstrom', 'region' => 'eu'],
@@ -52,11 +53,9 @@ class CharacterTestCase extends TestCase
     /** @test */
     public function nonExistentCharacterGives404()
     {
-//        TODO FIX
-//        $this->expectException(BlizzardServiceException::class);
         $this
-            ->get('/api/character/eu/randoBoy/randoRealm')
-            ->assertStatus(404);
+            ->get('/api/character/eu/randomRealm/randomCharacter')
+            ->assertNotFound();
     }
 
 }
