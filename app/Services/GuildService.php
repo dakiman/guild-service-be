@@ -9,11 +9,9 @@ use Illuminate\Support\Str;
 class GuildService
 {
     private BlizzardProfileClient $profileClient;
-    private string $region;
 
-    public function __construct($region, BlizzardProfileClient $profileClient)
+    public function __construct(BlizzardProfileClient $profileClient)
     {
-        $this->region = $region;
         $this->profileClient = $profileClient;
     }
 
@@ -29,23 +27,44 @@ class GuildService
             ->first();
 
         if ($guild) {
-            return $guild;
+            $guild->increasePopularity();
+            $guild->save();
         } else {
-            $responses = $this->profileClient->getGuildInfo($region, $realmName, $guildName);
-
-            $guildData = json_decode($responses['basic']->getBody());
-            $guildData->roster = json_decode($responses['roster']->getBody());
-            $guildData->achievements = json_decode($responses['achievements']->getBody());
-
             $guild = Guild::create([
                 'name' => $guildName,
                 'realm' => $realmName,
                 'region' => $region,
-                'guild_data' => json_encode($guildData)
+                'guild_data' => $this->getGuildData($region, $realmName, $guildName)
             ]);
         }
 
         return $guild;
+    }
+
+    public function getRecentlySearched()
+    {
+        return Guild
+            ::orderBy('updated_at', 'desc')
+            ->limit(5)
+            ->get(['name', 'region', 'realm']);
+    }
+
+    public function getMostPopular()
+    {
+        return Guild
+            ::orderBy('num_of_searches', 'desc')
+            ->limit(5)
+            ->get(['name', 'region', 'realm']);
+    }
+
+    private function getGuildData(string $region, string $realmName, string $guildName)
+    {
+        $responses = $this->profileClient->getGuildInfo($region, $realmName, $guildName);
+
+        $guildData = json_decode($responses['basic']->getBody());
+        $guildData->roster = json_decode($responses['roster']->getBody());
+        $guildData->achievements = json_decode($responses['achievements']->getBody());
+        return $guildData;
     }
 
 }

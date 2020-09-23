@@ -14,7 +14,8 @@ class PerformanceTest extends TestCase
     public function getGuildRosterParallel()
     {
         $client = new Client([
-            'base_uri' => 'https://guild-service-be.herokuapp.com/api/'
+//            'base_uri' => 'https://guild-service-be.herokuapp.com/api/'
+            'base_uri' => '127.0.0.1:8000/api/'
         ]);
 
         $guilds = [

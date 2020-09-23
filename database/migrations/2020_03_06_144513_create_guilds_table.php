@@ -18,6 +18,7 @@ class CreateGuildsTable extends Migration
             $table->string('name');
             $table->string('realm');
             $table->string('region');
+            $table->bigInteger('num_of_searches')->default(0);
             $table->json('guild_data');
             $table->timestamps();
         });

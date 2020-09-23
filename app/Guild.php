@@ -12,4 +12,14 @@ class Guild extends Model
     {
         return json_decode($this->attributes['guild_data']);
     }
+
+    public function setGuildDataAttribute($value)
+    {
+        $this->attributes['guild_data'] = json_encode($value);
+    }
+
+    public function increasePopularity()
+    {
+        $this->num_of_searches++;
+    }
 }
