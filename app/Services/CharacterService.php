@@ -106,8 +106,8 @@ class CharacterService
     private static function mapBasicResponseData(Response $response)
     {
         $data = json_decode($response->getBody());
-        dd($data);
-        return [
+
+        $result = [
             'gender' => $data->gender->name,
             'faction' => $data->faction->name,
             'race' => $data->race->id,
@@ -115,28 +115,56 @@ class CharacterService
             'level' => $data->level,
             'achievement_points' => $data->achievement_points,
             'average_item_level' => $data->average_item_level,
-            'equipped_item_level' => $data->equipped_item_level
+            'equipped_item_level' => $data->equipped_item_level,
         ];
+
+        if (isset($data->guild)) {
+            $result['guild'] = [
+                'name' => $data->guild->name,
+                'realm' => $data->guild->realm->name,
+                'faction' => $data->guild->faction->name ?? null
+            ];
+        }
+
+        return $result;
     }
 
     private static function mapMediaResponseData(Response $response)
     {
         $data = json_decode($response->getBody());
+
         $pictures = [];
-        foreach ($data->assets as $asset) {
-            $pictures[$asset->key] = $asset->value;
+
+        if (isset($data->assets)) {
+            foreach ($data->assets as $asset) {
+                $pictures[$asset->key] = $asset->value;
+            }
+        } else {
+            return [
+                'avatar' => $data->avatar_url,
+                'inset' => $data->bust_url,
+                'main' => $data->render_url
+            ];
         }
+
         return $pictures;
     }
 
     private function mapEquipmentResponseData(Response $response)
     {
         $data = json_decode($response->getBody());
+
         $equipment = [];
-        foreach($data->equipped_items as $equipped) {
-            $item = new Item([ 'id' => $equipped->item->id, 'itemLevel' => $equipped->level->value]);
+
+        foreach ($data->equipped_items as $equipped) {
+            $item = new Item([
+                'id' => $equipped->item->id,
+                'itemLevel' => $equipped->level->value,
+                'quality' => $equipped->quality->name
+            ]);
             array_push($equipment, $item);
         }
+
         return $equipment;
     }
 

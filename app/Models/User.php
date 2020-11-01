@@ -10,7 +10,6 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 use Jenssegers\Mongodb\Auth\User as Authenticatable;
 
 
-
 class User extends Authenticatable implements JWTSubject
 {
     use Notifiable, CanResetPassword, HasFactory;
@@ -40,6 +39,11 @@ class User extends Authenticatable implements JWTSubject
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+    ];
+
+    /** Make Carbon work w/ mongo (specify which fields)*/
+    protected $dates = [
+        'bnet_sync_at'
     ];
 
 
