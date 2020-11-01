@@ -4,7 +4,9 @@
 namespace App;
 
 
-use Illuminate\Database\Eloquent\Model;
+//use Illuminate\Database\Eloquent\Model;
+use Jenssegers\Mongodb\Eloquent\Model;
+
 
 class Character extends Model
 {
@@ -19,15 +21,15 @@ class Character extends Model
         return $this->hasOne(User::class);
     }
 
-    public function getCharacterDataAttribute()
-    {
-        return json_decode($this->attributes['character_data']);
-    }
-
-    public function setCharacterDataAttribute($value)
-    {
-        $this->attributes['character_data'] = json_encode($value);
-    }
+//    public function getCharacterDataAttribute()
+//    {
+//        return json_decode($this->attributes['character_data']);
+//    }
+//
+//    public function setCharacterDataAttribute($value)
+//    {
+//        $this->attributes['character_data'] = json_encode($value);
+//    }
 
     public function increasePopularity()
     {

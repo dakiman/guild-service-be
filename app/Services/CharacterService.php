@@ -17,7 +17,7 @@ class CharacterService
         $this->profileClient = $profileClient;
     }
 
-    public function getBasicCharacterInfo(string $region, string $realmName, string $characterName, int $ownerId = null): Character
+    public function getBasicCharacterInfo(string $region, string $realmName, string $characterName, string $ownerId = null): Character
     {
         $realmName = Str::slug($realmName);
         $characterName = strtolower($characterName);
