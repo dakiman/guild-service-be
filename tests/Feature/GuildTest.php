@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Character;
 use Tests\TestCase;
 
 class GuildTest extends TestCase

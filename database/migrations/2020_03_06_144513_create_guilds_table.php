@@ -13,14 +13,8 @@ class CreateGuildsTable extends Migration
      */
     public function up()
     {
-        Schema::create('guilds', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->string('name');
-            $table->string('realm');
-            $table->string('region');
-            $table->bigInteger('num_of_searches')->default(0);
-            $table->json('guild_data');
-            $table->timestamps();
+        Schema::create('guilds', function ($collection) {
+            $collection->index(['name', 'realm', 'region']);
         });
     }
 

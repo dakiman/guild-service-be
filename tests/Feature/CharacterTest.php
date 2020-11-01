@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Character;
+use App\Models\Character;
 use App\Exceptions\BlizzardServiceException;
 use Tests\TestCase;
 

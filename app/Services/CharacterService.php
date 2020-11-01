@@ -3,7 +3,7 @@
 
 namespace App\Services;
 
-use App\Character;
+use App\Models\Character;
 use App\Exceptions\BlizzardServiceException;
 use App\Services\Blizzard\BlizzardProfileClient;
 use Str;

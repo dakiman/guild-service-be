@@ -13,20 +13,8 @@ class CreateCharactersTable extends Migration
      */
     public function up()
     {
-        Schema::create('characters', function (Blueprint $table) {
-            $table->bigIncrements('id')->unsigned();
-            $table->string('name');
-            $table->string('realm');
-            $table->string('region');
-            $table->boolean('recruitment')->default(false);
-            $table->bigInteger('num_of_searches')->default(0);
-            $table
-                ->foreignId('user_id')
-                ->nullable()
-                ->references('id')
-                ->on('users');
-            $table->json('character_data');
-            $table->timestamps();
+        Schema::create('characters', function ($collection) {
+            $collection->index(['name', 'realm', 'region']);
         });
     }
 

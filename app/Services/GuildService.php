@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Guild;
+use App\Models\Guild;
 use App\Services\Blizzard\BlizzardProfileClient;
 use Illuminate\Support\Str;
 
