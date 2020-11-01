@@ -22,7 +22,7 @@ class CharacterService
         $this->profileClient = $profileClient;
     }
 
-    public function getBasicCharacterInfo(string $region, string $realmName, string $characterName, string $ownerId = null): CharacterDocument
+    public function getBasicCharacterInfo(string $region, string $realmName, string $characterName, string $ownerId = null): Character
     {
         $realmName = Str::slug($realmName);
         $characterName = strtolower($characterName);
@@ -49,7 +49,8 @@ class CharacterService
             ]);
             $character = Character::create($characterDocument->toArray());
         }
-        return $character->toDTO();
+
+        return $character;
     }
 
     public function retrieveCharactersFromAccount($token, $region)

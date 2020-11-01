@@ -16,7 +16,7 @@ class Character extends Model
         'recruitment' => 'boolean'
     ];
 
-    public function toDTO()
+    public function toDTO(): CharacterDocument
     {
         return new CharacterDocument($this->toArray());
     }

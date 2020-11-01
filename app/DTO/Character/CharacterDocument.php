@@ -15,5 +15,4 @@ class CharacterDocument extends FlexibleDataTransferObject
     public ?int $num_of_searches;
     public ?bool $recruitment;
     public BlizzardData $blizzard_data;
-
 }

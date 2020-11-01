@@ -11,5 +11,4 @@ class Item extends FlexibleDataTransferObject
     public int $id;
     public int $itemLevel;
     public string $quality;
-
 }
