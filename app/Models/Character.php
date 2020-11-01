@@ -4,7 +4,7 @@
 namespace App\Models;
 
 
-//use Illuminate\Database\Eloquent\Model;
+use App\DTO\Character\CharacterDocument;
 use Jenssegers\Mongodb\Eloquent\Model;
 
 
@@ -16,20 +16,15 @@ class Character extends Model
         'recruitment' => 'boolean'
     ];
 
+    public function toDTO()
+    {
+        return CharacterDocument::fromArray($this->toArray());
+    }
+
     public function owner()
     {
         return $this->hasOne(User::class);
     }
-
-//    public function getCharacterDataAttribute()
-//    {
-//        return json_decode($this->attributes['character_data']);
-//    }
-//
-//    public function setCharacterDataAttribute($value)
-//    {
-//        $this->attributes['character_data'] = json_encode($value);
-//    }
 
     public function increasePopularity()
     {

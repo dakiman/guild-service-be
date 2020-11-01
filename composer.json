@@ -18,7 +18,7 @@
         "laravel/tinker": "^2.0",
         "laravel/ui": "^3.0",
         "mongodb/mongodb": "^1.7",
-        "spatie/data-transfer-object": "^1.13",
+        "spatie/data-transfer-object": "^2.5",
         "tymon/jwt-auth": "1.0.*"
     },
     "require-dev": {

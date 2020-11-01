@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2f6661747160d2303f0fcd4010cb1ea9",
+    "content-hash": "883ab0d83c88f9bdd3846f692903a31d",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -2702,24 +2702,28 @@
         },
         {
             "name": "spatie/data-transfer-object",
-            "version": "1.13.3",
+            "version": "2.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/data-transfer-object.git",
-                "reference": "2f6291620f1f067508b7d80d3b0346609adc265e"
+                "reference": "e326e10c8fd694db9b0c584c4986370beb9fd3ce"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/data-transfer-object/zipball/2f6291620f1f067508b7d80d3b0346609adc265e",
-                "reference": "2f6291620f1f067508b7d80d3b0346609adc265e",
+                "url": "https://api.github.com/repos/spatie/data-transfer-object/zipball/e326e10c8fd694db9b0c584c4986370beb9fd3ce",
+                "reference": "e326e10c8fd694db9b0c584c4986370beb9fd3ce",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.1"
+                "php": "^7.4"
             },
             "require-dev": {
+                "friendsofphp/php-cs-fixer": "^2.16",
                 "larapack/dd": "^1.0",
                 "phpunit/phpunit": "^7.0"
+            },
+            "suggest": {
+                "phpstan/phpstan": "Take advantage of checkUninitializedProperties with \\Spatie\\DataTransferObject\\PHPstan\\PropertiesAreAlwaysInitializedExtension"
             },
             "type": "library",
             "autoload": {
@@ -2745,7 +2749,17 @@
                 "data-transfer-object",
                 "spatie"
             ],
-            "time": "2020-01-29T15:10:20+00:00"
+            "support": {
+                "issues": "https://github.com/spatie/data-transfer-object/issues",
+                "source": "https://github.com/spatie/data-transfer-object/tree/master"
+            },
+            "funding": [
+                {
+                    "url": "https://www.patreon.com/spatie",
+                    "type": "patreon"
+                }
+            ],
+            "time": "2020-08-28T09:26:20+00:00"
         },
         {
             "name": "swiftmailer/swiftmailer",

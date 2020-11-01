@@ -3,9 +3,15 @@
 
 namespace App\Services;
 
+use App\DTO\Character\Basic;
+use App\DTO\Character\BlizzardData;
+use App\DTO\Character\CharacterDocument;
+use App\DTO\Character\Item;
+use App\DTO\Character\Media;
 use App\Models\Character;
 use App\Exceptions\BlizzardServiceException;
 use App\Services\Blizzard\BlizzardProfileClient;
+use phpDocumentor\Reflection\Types\Object_;
 use Str;
 
 class CharacterService
@@ -17,7 +23,7 @@ class CharacterService
         $this->profileClient = $profileClient;
     }
 
-    public function getBasicCharacterInfo(string $region, string $realmName, string $characterName, string $ownerId = null): Character
+    public function getBasicCharacterInfo(string $region, string $realmName, string $characterName, string $ownerId = null): CharacterDocument
     {
         $realmName = Str::slug($realmName);
         $characterName = strtolower($characterName);
@@ -35,15 +41,16 @@ class CharacterService
             $character->increasePopularity();
             $character->save();
         } else {
-            $character = Character::create([
+            $characterDocument = CharacterDocument::fromArray([
                 'name' => $characterName,
                 'realm' => $realmName,
                 'region' => $region,
                 'user_id' => $ownerId,
-                'character_data' => $this->getCharacterData($region, $realmName, $characterName)
+                'blizzard_data' => $this->getCharacterData($region, $realmName, $characterName)
             ]);
+            $character = Character::create($characterDocument->toArray());
         }
-        return $character;
+        return $character->toDTO();
     }
 
     public function retrieveCharactersFromAccount($token, $region)
@@ -89,10 +96,13 @@ class CharacterService
     private function getCharacterData(string $region, string $realmName, string $characterName)
     {
         $responses = $this->profileClient->getCharacterInfo($region, $realmName, $characterName);
-        $characterData = json_decode($responses['basic']->getBody());
-        $characterData->media = json_decode($responses['media']->getBody());
-        $characterData->equipment = json_decode($responses['equipment']->getBody());
-        return $characterData;
+
+        $blizzardData['basic'] = Basic::fromResponse(json_decode($responses['basic']->getBody()));
+        $blizzardData['media'] = Media::fromResponse(json_decode($responses['media']->getBody()));
+//        $blizzardData['equipment'] = Item::fromResponse(json_decode($responses['equipment']->getBody()));
+
+        return $blizzardData;
     }
+
 
 }
