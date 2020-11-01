@@ -11,6 +11,6 @@ class BlizzardData extends FlexibleDataTransferObject
 {
     public Media $media;
     public Basic $basic;
-//    /** @var Item[] */
-//    public $items;
+    /** @var \App\DTO\Character\Item[] */
+    public $equipment;
 }

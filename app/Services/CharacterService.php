@@ -4,14 +4,13 @@
 namespace App\Services;
 
 use App\DTO\Character\Basic;
-use App\DTO\Character\BlizzardData;
 use App\DTO\Character\CharacterDocument;
 use App\DTO\Character\Item;
 use App\DTO\Character\Media;
 use App\Models\Character;
 use App\Exceptions\BlizzardServiceException;
 use App\Services\Blizzard\BlizzardProfileClient;
-use phpDocumentor\Reflection\Types\Object_;
+use GuzzleHttp\Psr7\Response;
 use Str;
 
 class CharacterService
@@ -97,12 +96,48 @@ class CharacterService
     {
         $responses = $this->profileClient->getCharacterInfo($region, $realmName, $characterName);
 
-        $blizzardData['basic'] = Basic::fromResponse(json_decode($responses['basic']->getBody()));
-        $blizzardData['media'] = Media::fromResponse(json_decode($responses['media']->getBody()));
-//        $blizzardData['equipment'] = Item::fromResponse(json_decode($responses['equipment']->getBody()));
+        $blizzardData['basic'] = new Basic($this->mapBasicResponseData($responses['basic']));
+        $blizzardData['media'] = new Media($this->mapMediaResponseData($responses['media']));
+        $blizzardData['equipment'] = $this->mapEquipmentResponseData($responses['equipment']);
 
         return $blizzardData;
     }
 
+    private static function mapBasicResponseData(Response $response)
+    {
+        $data = json_decode($response->getBody());
+        dd($data);
+        return [
+            'gender' => $data->gender->name,
+            'faction' => $data->faction->name,
+            'race' => $data->race->id,
+            'class' => $data->character_class->id,
+            'level' => $data->level,
+            'achievement_points' => $data->achievement_points,
+            'average_item_level' => $data->average_item_level,
+            'equipped_item_level' => $data->equipped_item_level
+        ];
+    }
+
+    private static function mapMediaResponseData(Response $response)
+    {
+        $data = json_decode($response->getBody());
+        $pictures = [];
+        foreach ($data->assets as $asset) {
+            $pictures[$asset->key] = $asset->value;
+        }
+        return $pictures;
+    }
+
+    private function mapEquipmentResponseData(Response $response)
+    {
+        $data = json_decode($response->getBody());
+        $equipment = [];
+        foreach($data->equipped_items as $equipped) {
+            $item = new Item([ 'id' => $equipped->item->id, 'itemLevel' => $equipped->level->value]);
+            array_push($equipment, $item);
+        }
+        return $equipment;
+    }
 
 }
