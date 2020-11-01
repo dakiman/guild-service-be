@@ -40,7 +40,7 @@ class CharacterService
             $character->increasePopularity();
             $character->save();
         } else {
-            $characterDocument = CharacterDocument::fromArray([
+            $characterDocument = new CharacterDocument([
                 'name' => $characterName,
                 'realm' => $realmName,
                 'region' => $region,

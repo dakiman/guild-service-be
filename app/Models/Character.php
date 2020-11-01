@@ -18,7 +18,7 @@ class Character extends Model
 
     public function toDTO()
     {
-        return CharacterDocument::fromArray($this->toArray());
+        return new CharacterDocument($this->toArray());
     }
 
     public function owner()
