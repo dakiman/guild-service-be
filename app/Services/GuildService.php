@@ -20,11 +20,11 @@ class GuildService
         $realmName = Str::slug($realmName);
         $guildName = Str::slug($guildName);
 
-        $guild = Guild
-            ::where('name', $guildName)
-            ->where('realm', $realmName)
-            ->where('region', $region)
-            ->first();
+        $guild = Guild::where([
+            'name' => $guildName,
+            'realm' => $realmName,
+            'region' => $region,
+        ])->first();
 
         if ($guild) {
             $guild->increasePopularity();

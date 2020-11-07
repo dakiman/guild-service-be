@@ -4,6 +4,7 @@
 namespace App\Services;
 
 use App\DTO\Character\Basic;
+use App\DTO\Character\BlizzardData;
 use App\DTO\Character\CharacterDocument;
 use App\DTO\Character\Item;
 use App\DTO\Character\Media;
@@ -93,18 +94,18 @@ class CharacterService
             ->get(['name', 'region', 'realm']);
     }
 
-    private function getCharacterData(string $region, string $realmName, string $characterName)
+    private function getCharacterData(string $region, string $realmName, string $characterName): BlizzardData
     {
         $responses = $this->profileClient->getCharacterInfo($region, $realmName, $characterName);
 
-        $blizzardData['basic'] = new Basic($this->mapBasicResponseData($responses['basic']));
-        $blizzardData['media'] = new Media($this->mapMediaResponseData($responses['media']));
+        $blizzardData['basic'] = $this->mapBasicResponseData($responses['basic']);
+        $blizzardData['media'] = $this->mapMediaResponseData($responses['media']);
         $blizzardData['equipment'] = $this->mapEquipmentResponseData($responses['equipment']);
 
-        return $blizzardData;
+        return new BlizzardData($blizzardData);
     }
 
-    private static function mapBasicResponseData(Response $response)
+    private function mapBasicResponseData(Response $response): Basic
     {
         $data = json_decode($response->getBody());
 
@@ -127,10 +128,10 @@ class CharacterService
             ];
         }
 
-        return $result;
+        return new Basic($result);
     }
 
-    private static function mapMediaResponseData(Response $response)
+    private function mapMediaResponseData(Response $response): Media
     {
         $data = json_decode($response->getBody());
 
@@ -141,16 +142,17 @@ class CharacterService
                 $pictures[$asset->key] = $asset->value;
             }
         } else {
-            return [
+            $pictures = [
                 'avatar' => $data->avatar_url,
                 'inset' => $data->bust_url,
                 'main' => $data->render_url
             ];
         }
 
-        return $pictures;
+        return new Media($pictures);
     }
 
+    /** @return Item[] */
     private function mapEquipmentResponseData(Response $response)
     {
         $data = json_decode($response->getBody());
