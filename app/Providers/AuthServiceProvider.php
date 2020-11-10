@@ -27,6 +27,6 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        Gate::define('toggle-recruitment', fn (User $user, Character $character) => $user->id !== $character->user_id);
+        Gate::define('toggle-recruitment', fn(User $user, Character $character) => $user->id == $character->user_id);
     }
 }
