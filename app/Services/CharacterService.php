@@ -3,8 +3,8 @@
 
 namespace App\Services;
 
-use App\DTO\Character\Basic;
-use App\DTO\Character\BlizzardData;
+use App\DTO\Character\CharacterBasic;
+use App\DTO\Character\BlizzardCharacterData;
 use App\DTO\Character\CharacterDocument;
 use App\DTO\Character\Item;
 use App\DTO\Character\Media;
@@ -41,13 +41,18 @@ class CharacterService
             $character->increasePopularity();
             $character->save();
         } else {
+            $responses = $this->profileClient->getCharacterInfo($region, $realmName, $characterName);
+
             $characterDocument = new CharacterDocument([
                 'name' => $characterName,
                 'realm' => $realmName,
                 'region' => $region,
                 'user_id' => $ownerId,
-                'blizzard_data' => $this->getCharacterData($region, $realmName, $characterName)
+                'basic' => $this->mapBasicResponseData($responses['basic']),
+                'media' => $this->mapMediaResponseData($responses['media']),
+                'equipment' => $this->mapEquipmentResponseData($responses['equipment']),
             ]);
+
             $character = Character::create($characterDocument->toArray());
         }
 
@@ -93,19 +98,18 @@ class CharacterService
             ->limit(5)
             ->get(['name', 'region', 'realm']);
     }
+//
+//    private function getBlizzardData(string $region, string $realmName, string $characterName)
+//    {
+//
+//        $blizzardData['basic'] = $this->mapBasicResponseData($responses['basic']);
+//        $blizzardData['media'] = $this->mapMediaResponseData($responses['media']);
+//        $blizzardData['equipment'] = $this->mapEquipmentResponseData($responses['equipment']);
+//
+//        return $blizzardData;
+//    }
 
-    private function getCharacterData(string $region, string $realmName, string $characterName): BlizzardData
-    {
-        $responses = $this->profileClient->getCharacterInfo($region, $realmName, $characterName);
-
-        $blizzardData['basic'] = $this->mapBasicResponseData($responses['basic']);
-        $blizzardData['media'] = $this->mapMediaResponseData($responses['media']);
-        $blizzardData['equipment'] = $this->mapEquipmentResponseData($responses['equipment']);
-
-        return new BlizzardData($blizzardData);
-    }
-
-    private function mapBasicResponseData(Response $response): Basic
+    private function mapBasicResponseData(Response $response): CharacterBasic
     {
         $data = json_decode($response->getBody());
 
@@ -128,7 +132,7 @@ class CharacterService
             ];
         }
 
-        return new Basic($result);
+        return new CharacterBasic($result);
     }
 
     private function mapMediaResponseData(Response $response): Media

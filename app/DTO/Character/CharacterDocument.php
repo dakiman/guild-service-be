@@ -14,5 +14,8 @@ class CharacterDocument extends FlexibleDataTransferObject
     public ?string $user_id;
     public ?int $num_of_searches;
     public ?bool $recruitment;
-    public BlizzardData $blizzard_data;
+    public Media $media;
+    public CharacterBasic $basic;
+    /** @var \App\DTO\Character\Item[] */
+    public $equipment;
 }

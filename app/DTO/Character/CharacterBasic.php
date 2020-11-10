@@ -6,7 +6,7 @@ namespace App\DTO\Character;
 
 use Spatie\DataTransferObject\FlexibleDataTransferObject;
 
-class Basic extends FlexibleDataTransferObject
+class CharacterBasic extends FlexibleDataTransferObject
 {
     public string $gender;
     public string $faction;
