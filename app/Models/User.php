@@ -1,13 +1,14 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use App\Notifications\ResetPassword;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Foundation\Auth\User as Authenticatable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use Jenssegers\Mongodb\Auth\User as Authenticatable;
+
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -38,6 +39,11 @@ class User extends Authenticatable implements JWTSubject
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+    ];
+
+    /** Make Carbon work w/ mongo (specify which fields)*/
+    protected $dates = [
+        'bnet_sync_at'
     ];
 
 

@@ -2,8 +2,12 @@
 
 namespace App\Services;
 
-use App\Guild;
+use App\DTO\Guild\GuildBasic;
+use App\DTO\Guild\GuildDocument;
+use App\DTO\Guild\GuildMember;
+use App\Models\Guild;
 use App\Services\Blizzard\BlizzardProfileClient;
+use GuzzleHttp\Psr7\Response;
 use Illuminate\Support\Str;
 
 class GuildService
@@ -20,22 +24,27 @@ class GuildService
         $realmName = Str::slug($realmName);
         $guildName = Str::slug($guildName);
 
-        $guild = Guild
-            ::where('name', $guildName)
-            ->where('realm', $realmName)
-            ->where('region', $region)
-            ->first();
+        $guild = Guild::where([
+            'name' => $guildName,
+            'realm' => $realmName,
+            'region' => $region,
+        ])->first();
 
         if ($guild) {
             $guild->increasePopularity();
             $guild->save();
         } else {
-            $guild = Guild::create([
+            $responses = $this->profileClient->getGuildInfo($region, $realmName, $guildName);
+
+            $guildDocument = new GuildDocument([
                 'name' => $guildName,
                 'realm' => $realmName,
                 'region' => $region,
-                'guild_data' => $this->getGuildData($region, $realmName, $guildName)
+                'basic' => $this->mapBasicData($responses['basic']),
+                'roster' => $this->mapRosterData($responses['roster']),
             ]);
+
+            $guild = Guild::create($guildDocument->toArray());
         }
 
         return $guild;
@@ -57,14 +66,37 @@ class GuildService
             ->get(['name', 'region', 'realm']);
     }
 
-    private function getGuildData(string $region, string $realmName, string $guildName)
+    /** @return GuildMember[] */
+    private function mapRosterData(Response $response)
     {
-        $responses = $this->profileClient->getGuildInfo($region, $realmName, $guildName);
+        $roster = json_decode($response->getBody());
 
-        $guildData = json_decode($responses['basic']->getBody());
-        $guildData->roster = json_decode($responses['roster']->getBody());
-        $guildData->achievements = json_decode($responses['achievements']->getBody());
-        return $guildData;
+        return collect($roster->members)->map(function ($member) {
+            $character = $member->character;
+
+            $member = new GuildMember([
+                'name' => $character->name,
+                'realm' => $character->realm->slug,
+                'level' => $character->level,
+                'class' => $character->playable_class->id,
+                'race' => $character->playable_race->id,
+                'rank' => $member->rank,
+            ]);
+
+            return $member;
+        })->toArray();
+    }
+
+    private function mapBasicData(Response $response): GuildBasic
+    {
+        $basicData = json_decode($response->getBody());
+
+        return new GuildBasic([
+            'achievement_points' => $basicData->achievement_points,
+            'member_count' => $basicData->member_count,
+            'created_timestamp' => $basicData->created_timestamp,
+            'faction' => $basicData->faction->name
+        ]);
     }
 
 }

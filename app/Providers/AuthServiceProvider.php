@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\Character;
+use App\Models\User;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
@@ -25,6 +27,6 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        //
+        Gate::define('toggle-recruitment', fn(User $user, Character $character) => $user->id == $character->user_id);
     }
 }

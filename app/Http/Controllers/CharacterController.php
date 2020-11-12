@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Character;
+use App\Models\Character;
 use App\Services\CharacterService;
+use Gate;
 
 class CharacterController extends Controller
 {
@@ -23,6 +24,8 @@ class CharacterController extends Controller
 
     public function toggleRecruitment(Character $character)
     {
+        Gate::authorize('toggle-recruitment', $character);
+
         $character->recruitment = !$character->recruitment;
         $character->save();
 

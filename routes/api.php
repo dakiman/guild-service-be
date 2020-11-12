@@ -16,7 +16,7 @@ Route::get('/guild/popular', 'GuildController@popular');
 
 Route::get('/character/{region}/{realm}/{characterName}', 'CharacterController@character');
 Route::get('/character/popular', 'CharacterController@popular');
-Route::patch('/character/{character}/recruitment', 'CharacterController@toggleRecruitment');
+Route::patch('/character/{character}/recruitment', 'CharacterController@toggleRecruitment')->middleware('auth');
 
 
 Route::get('/user','Auth\AuthController@user')->middleware('auth');
@@ -28,3 +28,8 @@ Route::post('/password/forgot', 'Auth\ForgotPasswordController')->name('password
 Route::post('/password/reset', 'Auth\ResetPasswordController@reset')->name('password.reset');
 
 Route::post('/{region}/blizzard-oauth', 'BlizzardController@code');
+
+//Route::get('/test', function () {
+//    dd(App\Models\Character::where('blizzard_data.basic.level', '>', 45)->get()->count());
+//});
+

@@ -20,7 +20,6 @@ class BlizzardProfileClient
      * @return array [
      *      'basic' => GuzzleHttp\Psr7\Response,
      *      'roster' => GuzzleHttp\Psr7\Response,
-     *      'achievements' => GuzzleHttp\Psr7\Response
      *  ]
      * */
     public function getGuildInfo(string $region, string $realmName, string $guildName)
@@ -30,7 +29,6 @@ class BlizzardProfileClient
         $promises = [
             'basic' => $client->getAsync("/data/wow/guild/$realmName/$guildName"),
             'roster' => $client->getAsync("/data/wow/guild/$realmName/$guildName/roster"),
-            'achievements' => $client->getAsync("/data/wow/guild/$realmName/$guildName/achievements")
         ];
 
         try {
