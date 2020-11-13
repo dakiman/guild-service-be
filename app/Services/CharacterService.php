@@ -8,6 +8,7 @@ use App\DTO\Character\BlizzardCharacterData;
 use App\DTO\Character\CharacterDocument;
 use App\DTO\Character\Item;
 use App\DTO\Character\Media;
+use App\DTO\Character\Specialization;
 use App\Models\Character;
 use App\Exceptions\BlizzardServiceException;
 use App\Services\Blizzard\BlizzardProfileClient;
@@ -28,33 +29,41 @@ class CharacterService
         $realmName = Str::slug($realmName);
         $characterName = strtolower($characterName);
 
-        $character = Character::where([
+//        $character = Character::where([
+//            'name' => $characterName,
+//            'realm' => $realmName,
+//            'region' => $region
+//        ])->first();
+//
+//        if ($character) {
+//            if ($ownerId != null) {
+//                $character->user_id = $ownerId;
+//            }
+//            $character->increasePopularity();
+//            $character->save();
+//        } else {
+        $responses = $this->profileClient->getCharacterInfo($region, $realmName, $characterName);
+
+        $characterDocument = new CharacterDocument([
             'name' => $characterName,
             'realm' => $realmName,
-            'region' => $region
-        ])->first();
+            'region' => $region,
+            'user_id' => $ownerId,
+            'basic' => $this->mapBasicResponseData($responses['basic']),
+            'media' => $this->mapMediaResponseData($responses['media']),
+            'equipment' => $this->mapEquipmentResponseData($responses['equipment']),
+            'specialization' => $this->mapSpecializationsResponseData($responses['specialization'])
+        ]);
 
-        if ($character) {
-            if ($ownerId != null) {
-                $character->user_id = $ownerId;
-            }
-            $character->increasePopularity();
-            $character->save();
-        } else {
-            $responses = $this->profileClient->getCharacterInfo($region, $realmName, $characterName);
-
-            $characterDocument = new CharacterDocument([
+        $character = Character::updateOrCreate(
+            [
                 'name' => $characterName,
                 'realm' => $realmName,
-                'region' => $region,
-                'user_id' => $ownerId,
-                'basic' => $this->mapBasicResponseData($responses['basic']),
-                'media' => $this->mapMediaResponseData($responses['media']),
-                'equipment' => $this->mapEquipmentResponseData($responses['equipment']),
-            ]);
-
-            $character = Character::create($characterDocument->toArray());
-        }
+                'region' => $region
+            ],
+            $characterDocument->toArray()
+        );
+//        }
 
         return $character;
     }
@@ -98,16 +107,6 @@ class CharacterService
             ->limit(5)
             ->get(['name', 'region', 'realm']);
     }
-//
-//    private function getBlizzardData(string $region, string $realmName, string $characterName)
-//    {
-//
-//        $blizzardData['basic'] = $this->mapBasicResponseData($responses['basic']);
-//        $blizzardData['media'] = $this->mapMediaResponseData($responses['media']);
-//        $blizzardData['equipment'] = $this->mapEquipmentResponseData($responses['equipment']);
-//
-//        return $blizzardData;
-//    }
 
     private function mapBasicResponseData(Response $response): CharacterBasic
     {
@@ -173,6 +172,28 @@ class CharacterService
         }
 
         return $equipment;
+    }
+
+    private function mapSpecializationsResponseData(Response $response): Specialization
+    {
+        $data = json_decode($response->getBody());
+
+        $activeSpecName = $data->active_specialization->name;
+
+        $activeSpec = collect($data->specializations)
+            ->firstWhere('specialization.name', $activeSpecName);
+
+        $talents = [];
+        if (!empty($activeSpec->talents)) {
+            $talents = collect($activeSpec->talents)
+                ->map(fn($talent) => $talent->spell_tooltip->spell->id)
+                ->toArray();
+        }
+
+        return new Specialization([
+            'activeSpecialization' => $activeSpecName,
+            'talents' => $talents
+        ]);
     }
 
 }

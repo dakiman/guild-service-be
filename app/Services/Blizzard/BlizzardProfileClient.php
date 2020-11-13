@@ -52,7 +52,8 @@ class BlizzardProfileClient
         $promises = [
             'basic' => $client->getAsync("/profile/wow/character/$realmName/$characterName"),
             'media' => $client->getAsync("/profile/wow/character/$realmName/$characterName/character-media"),
-            'equipment' => $client->getAsync("/profile/wow/character/$realmName/$characterName/equipment")
+            'equipment' => $client->getAsync("/profile/wow/character/$realmName/$characterName/equipment"),
+            'specialization' => $client->getAsync("/profile/wow/character/$realmName/$characterName/specializations")
         ];
 
         try {
