@@ -33,18 +33,14 @@ class BlizzardUserClient {
     {
         $client = $this->buildClient($token, $region);
 
-        $oauthUrl = str_replace('{region}', $region, config('blizzard.oauth.url'));
-
-        return $client->getAsync($oauthUrl . '/oauth/userinfo');
+        return $client->getAsync(getBlizzardOauthUrl($region) . '/oauth/userinfo');
     }
 
     private function getUserCharactersRequest(string $token, string $region)
     {
         $client = $this->buildClient($token, $region);
 
-        $apiUrl = str_replace('{region}', $region, config('blizzard.api.url'));
-
-        return $client->getAsync($apiUrl . '/profile/user/wow');
+        return $client->getAsync(getBlizzardApiUrl($region) . '/profile/user/wow');
     }
 
     private function buildClient($token, $region)

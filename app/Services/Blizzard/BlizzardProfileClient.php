@@ -24,7 +24,7 @@ class BlizzardProfileClient
      * */
     public function getGuildInfo(string $region, string $realmName, string $guildName)
     {
-        $client = $this->buildClientForRegion($region);
+        $client = $this->buildClient($region);
 
         $promises = [
             'basic' => $client->getAsync("/data/wow/guild/$realmName/$guildName"),
@@ -47,7 +47,7 @@ class BlizzardProfileClient
     * */
     public function getCharacterInfo(string $region, string $realmName, string $characterName)
     {
-        $client = $this->buildClientForRegion($region);
+        $client = $this->buildClient($region);
 
         $promises = [
             'basic' => $client->getAsync("/profile/wow/character/$realmName/$characterName"),
@@ -63,13 +63,11 @@ class BlizzardProfileClient
         }
     }
 
-    private function buildClientForRegion(string $region)
+    private function buildClient(string $region)
     {
-        $apiUrl = str_replace('{region}', $region, config('blizzard.api.url'));
-
         return new Client([
             'headers' => ['Authorization' => 'Bearer ' . $this->token],
-            'base_uri' => $apiUrl,
+            'base_uri' => getBlizzardApiUrl($region),
             'query' => [
                 'namespace' => 'profile-' . $region,
                 'locale' => 'en_GB'

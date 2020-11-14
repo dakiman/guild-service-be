@@ -24,10 +24,7 @@ class BlizzardAuthClient
     /*For now defaulting to EU seems to work for all regions, and is easiest for code structure*/
     public function getToken($region = 'eu'): object
     {
-        $client = new Client([
-            'base_uri' => str_replace('{region}', $region, config('blizzard.oauth.url')),
-            'auth' => [$this->clientId, $this->clientSecret],
-        ]);
+        $client = $this->buildClient($region);
 
         try {
             $response = $client->post('/oauth/token', [
@@ -42,10 +39,7 @@ class BlizzardAuthClient
 
     public function getOauthAccessToken(string $region, string $authCode, string $redirectUri)
     {
-        $client = new Client([
-            'base_uri' => str_replace('{region}', $region, config('blizzard.oauth.url')),
-            'auth' => [$this->clientId, $this->clientSecret],
-        ]);
+        $client = $this->buildClient($region);
 
         try {
             $response = $client->post('/oauth/token', [
@@ -60,6 +54,14 @@ class BlizzardAuthClient
         }
 
         return json_decode($response->getBody());
+    }
+
+    private function buildClient(string $region)
+    {
+        return new Client([
+            'base_uri' => getBlizzardOauthUrl($region),
+            'auth' => [$this->clientId, $this->clientSecret],
+        ]);
     }
 
 }
