@@ -19,8 +19,8 @@ return [
         'EU', 'US', 'AU', 'CH'
     ],
 
-    'character_min_seconds_update' => 0,
+    'character_min_seconds_update' => env('CHARACTER_MIN_SECONDS_UPDATE', 0),
 
-    'guild_min_seconds_update' => 0,
+    'guild_min_seconds_update' => env('GUILD_MIN_SECONDS_UPDATE', 0),
 
 ];

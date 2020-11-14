@@ -19,7 +19,7 @@ class GuildService
         $this->profileClient = $profileClient;
     }
 
-    public function getFullGuildInfo(string $region, string $realmName, string $guildName)
+    public function getGuild(string $region, string $realmName, string $guildName)
     {
         $realmName = Str::slug($realmName);
         $guildName = Str::slug($guildName);

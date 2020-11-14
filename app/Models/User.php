@@ -43,7 +43,7 @@ class User extends Authenticatable implements JWTSubject
 
     /** Make Carbon work w/ mongo (specify which fields)*/
     protected $dates = [
-        'bnet_sync_at'
+        'bnet_sync_at',
     ];
 
 

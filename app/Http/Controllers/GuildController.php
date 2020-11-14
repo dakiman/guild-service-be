@@ -16,7 +16,7 @@ class GuildController extends Controller
     public function guild(string $region, string $realm, string $guildName)
     {
         return response()->json([
-            'guild' => $this->guildService->getFullGuildInfo($region, $realm, $guildName)
+            'guild' => $this->guildService->getGuild($region, $realm, $guildName)
         ]);
     }
 
