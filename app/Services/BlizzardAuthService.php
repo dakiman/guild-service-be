@@ -56,7 +56,7 @@ class BlizzardAuthService
 
         foreach ($characters as $character) {
             try {
-                $singleCharacter = app(CharacterService::class)->getBasicCharacterInfo(
+                $singleCharacter = app(CharacterService::class)->getCharacter(
                     $region, $character->realm->slug, $character->name, $ownerId
                 );
 
