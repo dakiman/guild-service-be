@@ -2,11 +2,9 @@
 
 namespace App\Providers;
 
-use App\Exceptions\BlizzardServiceException;
 use App\Services\Blizzard\BlizzardAuthClient;
 use App\Services\Blizzard\BlizzardProfileClient;
 use App\Services\BlizzardAuthService;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\ServiceProvider;
 
 class BlizzardServiceProvider extends ServiceProvider

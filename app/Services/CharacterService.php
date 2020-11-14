@@ -3,13 +3,13 @@
 
 namespace App\Services;
 
-use App\DTO\Character\CharacterBasic;
 use App\DTO\Character\BlizzardCharacterData;
+use App\DTO\Character\CharacterBasic;
 use App\DTO\Character\CharacterDocument;
 use App\DTO\Character\Item;
 use App\DTO\Character\Media;
+use App\DTO\Character\Specialization;
 use App\Models\Character;
-use App\Exceptions\BlizzardServiceException;
 use App\Services\Blizzard\BlizzardProfileClient;
 use GuzzleHttp\Psr7\Response;
 use Str;
@@ -34,13 +34,10 @@ class CharacterService
             'region' => $region
         ])->first();
 
-        if ($character) {
-            if ($ownerId != null) {
-                $character->user_id = $ownerId;
-            }
-            $character->increasePopularity();
-            $character->save();
-        } else {
+        if (
+            !$character ||
+            $character->updated_at->diffInSeconds() > config('blizzard.character_min_seconds_update')
+        ) {
             $responses = $this->profileClient->getCharacterInfo($region, $realmName, $characterName);
 
             $characterDocument = new CharacterDocument([
@@ -48,39 +45,23 @@ class CharacterService
                 'realm' => $realmName,
                 'region' => $region,
                 'user_id' => $ownerId,
+                'num_of_searches' => optional($character)->num_of_searches ? $character->num_of_searches++ : 0,
                 'basic' => $this->mapBasicResponseData($responses['basic']),
                 'media' => $this->mapMediaResponseData($responses['media']),
                 'equipment' => $this->mapEquipmentResponseData($responses['equipment']),
+                'specialization' => $this->mapSpecializationsResponseData($responses['specialization'])
             ]);
 
-            $character = Character::create($characterDocument->toArray());
+            $character = Character::updateOrCreate([
+                'name' => $characterName,
+                'realm' => $realmName,
+                'region' => $region
+            ],
+                $characterDocument->toArray()
+            );
         }
 
         return $character;
-    }
-
-    public function retrieveCharactersFromAccount($token, $region)
-    {
-        $accountData = $this->profileClient->getUserCharacters($token, $region);
-        $characters = $accountData->wow_accounts[0]->characters;
-
-        $savedCharacters = [];
-        $ownerId = auth()->user()->id;
-
-        foreach ($characters as $character) {
-            try {
-                $singleCharacter = $this->getBasicCharacterInfo(
-                    $region, $character->realm->slug, $character->name, $ownerId
-                );
-
-                array_push($savedCharacters, $singleCharacter);
-            } catch (BlizzardServiceException $e) {
-                continue;
-            }
-
-        }
-
-        return $savedCharacters;
     }
 
     public function getRecentlySearched()
@@ -98,16 +79,6 @@ class CharacterService
             ->limit(5)
             ->get(['name', 'region', 'realm']);
     }
-//
-//    private function getBlizzardData(string $region, string $realmName, string $characterName)
-//    {
-//
-//        $blizzardData['basic'] = $this->mapBasicResponseData($responses['basic']);
-//        $blizzardData['media'] = $this->mapMediaResponseData($responses['media']);
-//        $blizzardData['equipment'] = $this->mapEquipmentResponseData($responses['equipment']);
-//
-//        return $blizzardData;
-//    }
 
     private function mapBasicResponseData(Response $response): CharacterBasic
     {
@@ -173,6 +144,28 @@ class CharacterService
         }
 
         return $equipment;
+    }
+
+    private function mapSpecializationsResponseData(Response $response): Specialization
+    {
+        $data = json_decode($response->getBody());
+
+        $activeSpecName = $data->active_specialization->name;
+
+        $activeSpec = collect($data->specializations)
+            ->firstWhere('specialization.name', $activeSpecName);
+
+        $talents = [];
+        if (!empty($activeSpec->talents)) {
+            $talents = collect($activeSpec->talents)
+                ->map(fn($talent) => $talent->spell_tooltip->spell->id)
+                ->toArray();
+        }
+
+        return new Specialization([
+            'activeSpecialization' => $activeSpecName,
+            'talents' => $talents
+        ]);
     }
 
 }

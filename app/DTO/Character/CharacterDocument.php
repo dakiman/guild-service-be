@@ -18,4 +18,5 @@ class CharacterDocument extends FlexibleDataTransferObject
     public CharacterBasic $basic;
     /** @var \App\DTO\Character\Item[] */
     public $equipment;
+    public Specialization $specialization;
 }

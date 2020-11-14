@@ -52,7 +52,8 @@ class BlizzardProfileClient
         $promises = [
             'basic' => $client->getAsync("/profile/wow/character/$realmName/$characterName"),
             'media' => $client->getAsync("/profile/wow/character/$realmName/$characterName/character-media"),
-            'equipment' => $client->getAsync("/profile/wow/character/$realmName/$characterName/equipment")
+            'equipment' => $client->getAsync("/profile/wow/character/$realmName/$characterName/equipment"),
+            'specialization' => $client->getAsync("/profile/wow/character/$realmName/$characterName/specializations")
         ];
 
         try {
@@ -60,26 +61,6 @@ class BlizzardProfileClient
         } catch (Exception $e) {
             throw new BlizzardServiceException("Couldnt retrieve character $characterName @ $realmName | $region", $e, 404);
         }
-    }
-
-    public function getUserCharacters($token, $region)
-    {
-        $apiUrl = str_replace('{region}', $region, config('blizzard.api.url'));
-
-        $client = new Client([
-            'base_uri' => $apiUrl,
-            'headers' => [
-                'Authorization' => 'Bearer ' . $token
-            ],
-            'query' => [
-                'namespace' => 'profile-' . $region,
-                'locale' => 'en_GB'
-            ]
-        ]);
-
-        $response = $client->get('/profile/user/wow');
-
-        return json_decode($response->getBody());
     }
 
     private function buildClientForRegion(string $region)
