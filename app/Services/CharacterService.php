@@ -3,14 +3,13 @@
 
 namespace App\Services;
 
-use App\DTO\Character\CharacterBasic;
 use App\DTO\Character\BlizzardCharacterData;
+use App\DTO\Character\CharacterBasic;
 use App\DTO\Character\CharacterDocument;
 use App\DTO\Character\Item;
 use App\DTO\Character\Media;
 use App\DTO\Character\Specialization;
 use App\Models\Character;
-use App\Exceptions\BlizzardServiceException;
 use App\Services\Blizzard\BlizzardProfileClient;
 use GuzzleHttp\Psr7\Response;
 use Str;
@@ -29,67 +28,40 @@ class CharacterService
         $realmName = Str::slug($realmName);
         $characterName = strtolower($characterName);
 
-//        $character = Character::where([
-//            'name' => $characterName,
-//            'realm' => $realmName,
-//            'region' => $region
-//        ])->first();
-//
-//        if ($character) {
-//            if ($ownerId != null) {
-//                $character->user_id = $ownerId;
-//            }
-//            $character->increasePopularity();
-//            $character->save();
-//        } else {
-        $responses = $this->profileClient->getCharacterInfo($region, $realmName, $characterName);
-
-        $characterDocument = new CharacterDocument([
+        $character = Character::where([
             'name' => $characterName,
             'realm' => $realmName,
-            'region' => $region,
-            'user_id' => $ownerId,
-            'basic' => $this->mapBasicResponseData($responses['basic']),
-            'media' => $this->mapMediaResponseData($responses['media']),
-            'equipment' => $this->mapEquipmentResponseData($responses['equipment']),
-            'specialization' => $this->mapSpecializationsResponseData($responses['specialization'])
-        ]);
+            'region' => $region
+        ])->first();
 
-        $character = Character::updateOrCreate(
-            [
+        if (
+            !$character ||
+            $character->updated_at->diffInSeconds() > config('blizzard.character_min_seconds_update')
+        ) {
+            $responses = $this->profileClient->getCharacterInfo($region, $realmName, $characterName);
+
+            $characterDocument = new CharacterDocument([
+                'name' => $characterName,
+                'realm' => $realmName,
+                'region' => $region,
+                'user_id' => $ownerId,
+                'num_of_searches' => optional($character)->num_of_searches ? $character->num_of_searches++ : 0,
+                'basic' => $this->mapBasicResponseData($responses['basic']),
+                'media' => $this->mapMediaResponseData($responses['media']),
+                'equipment' => $this->mapEquipmentResponseData($responses['equipment']),
+                'specialization' => $this->mapSpecializationsResponseData($responses['specialization'])
+            ]);
+
+            $character = Character::updateOrCreate([
                 'name' => $characterName,
                 'realm' => $realmName,
                 'region' => $region
             ],
-            $characterDocument->toArray()
-        );
-//        }
-
-        return $character;
-    }
-
-    public function retrieveCharactersFromAccount($token, $region)
-    {
-        $accountData = $this->profileClient->getUserCharacters($token, $region);
-        $characters = $accountData->wow_accounts[0]->characters;
-
-        $savedCharacters = [];
-        $ownerId = auth()->user()->id;
-
-        foreach ($characters as $character) {
-            try {
-                $singleCharacter = $this->getBasicCharacterInfo(
-                    $region, $character->realm->slug, $character->name, $ownerId
-                );
-
-                array_push($savedCharacters, $singleCharacter);
-            } catch (BlizzardServiceException $e) {
-                continue;
-            }
-
+                $characterDocument->toArray()
+            );
         }
 
-        return $savedCharacters;
+        return $character;
     }
 
     public function getRecentlySearched()

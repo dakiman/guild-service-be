@@ -17,21 +17,19 @@ class BlizzardController extends Controller
         $this->characterService = $characterService;
     }
 
-    public function code(string $region)
+    public function code()
     {
         request()->validate([
             'code' => 'required',
             'redirectUri' => 'required'
         ]);
 
-        $token = $this->blizzardAuthService->syncBattleNetDetailsAndGetToken(
+        $this->blizzardAuthService->syncBattleNetDetails(
             request('region'),
             request('code'),
             request('redirectUri')
         );
 
-        $characters = $this->characterService->retrieveCharactersFromAccount($token, $region);
-
-        return response(['message' => 'Success!', 'characters' => $characters], 200);
+        return response(['message' => 'Successfully synced Battle.net data!'], 200);
     }
 }

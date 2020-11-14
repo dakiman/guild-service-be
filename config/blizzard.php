@@ -17,6 +17,8 @@ return [
 
     'regions' => [
         'EU', 'US', 'AU', 'CH'
-    ]
+    ],
+
+    'character_min_seconds_update' => 0,
 
 ];

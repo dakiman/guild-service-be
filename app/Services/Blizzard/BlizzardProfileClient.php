@@ -63,26 +63,6 @@ class BlizzardProfileClient
         }
     }
 
-    public function getUserCharacters($token, $region)
-    {
-        $apiUrl = str_replace('{region}', $region, config('blizzard.api.url'));
-
-        $client = new Client([
-            'base_uri' => $apiUrl,
-            'headers' => [
-                'Authorization' => 'Bearer ' . $token
-            ],
-            'query' => [
-                'namespace' => 'profile-' . $region,
-                'locale' => 'en_GB'
-            ]
-        ]);
-
-        $response = $client->get('/profile/user/wow');
-
-        return json_decode($response->getBody());
-    }
-
     private function buildClientForRegion(string $region)
     {
         $apiUrl = str_replace('{region}', $region, config('blizzard.api.url'));

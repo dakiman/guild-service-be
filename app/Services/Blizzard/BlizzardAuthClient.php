@@ -62,30 +62,4 @@ class BlizzardAuthClient
         return json_decode($response->getBody());
     }
 
-    public function getUserAccountDetails(string $token, string $region)
-    {
-        $oauthUrl = str_replace('{region}', $region, config('blizzard.oauth.url'));
-
-        $client = new Client([
-            'headers' => [
-                'Authorization' => 'Bearer ' . $token
-            ],
-            'query' => [
-                'namespace' => 'profile-' . $region,
-                'locale' => 'en_GB'
-            ]
-        ]);
-
-        try {
-            $response = $client->get($oauthUrl . '/oauth/userinfo');
-        } catch (Exception $e) {
-            throw new BlizzardServiceException('Had issues finishing OAuth process.', $e, 404);
-        }
-
-        return json_decode($response->getBody());
-    }
-
-
-
-
 }

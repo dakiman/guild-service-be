@@ -58,4 +58,12 @@ class CharacterTest extends TestCase
             ->assertNotFound();
     }
 
+    /** @test */
+    public function getCharacter()
+    {
+        $this
+            ->get('/api/character/eu/the-maelstrom/daki')
+            ->assertOk();
+    }
+
 }
