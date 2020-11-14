@@ -5,6 +5,7 @@ namespace App\Services;
 use App\DTO\Guild\GuildBasic;
 use App\DTO\Guild\GuildDocument;
 use App\DTO\Guild\GuildMember;
+use App\Jobs\RetrieveGuildRoster;
 use App\Models\Guild;
 use App\Services\Blizzard\BlizzardProfileClient;
 use GuzzleHttp\Psr7\Response;
@@ -40,7 +41,7 @@ class GuildService
                 'name' => $guildName,
                 'realm' => $realmName,
                 'region' => $region,
-                'num_of_searches' => optional($guild)->num_of_searches ? $guild->num_of_searches++ : 0,
+                'num_of_searches' => optional($guild)->num_of_searches ? ++$guild->num_of_searches : 1,
                 'basic' => $this->mapBasicData($responses['basic']),
                 'roster' => $this->mapRosterData($responses['roster']),
             ]);
@@ -52,6 +53,8 @@ class GuildService
             ],
                 $guildDocument->toArray()
             );
+
+            RetrieveGuildRoster::dispatch($guild);
         }
 
         return $guild;

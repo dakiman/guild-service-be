@@ -23,4 +23,6 @@ return [
 
     'guild_min_seconds_update' => env('GUILD_MIN_SECONDS_UPDATE', 0),
 
+    'min_level_for_character_lookup' => env('MIN_LEVEL_FOR_CHARACTER_LOOKUP', 0),
+
 ];

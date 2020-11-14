@@ -63,7 +63,6 @@ class BlizzardAuthService
                 array_push($savedCharacters, $singleCharacter);
             } catch (ApiException $e) {
                 Log::error('Exception while retrieving characters for user', ['exception_thrown' => $e->getMessage(), 'user' => auth()->user()->toArray()]);
-                continue;
             }
         }
 

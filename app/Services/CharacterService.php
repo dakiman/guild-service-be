@@ -3,7 +3,6 @@
 
 namespace App\Services;
 
-use App\DTO\Character\BlizzardCharacterData;
 use App\DTO\Character\CharacterBasic;
 use App\DTO\Character\CharacterDocument;
 use App\DTO\Character\Item;
@@ -45,7 +44,7 @@ class CharacterService
                 'realm' => $realmName,
                 'region' => $region,
                 'user_id' => $ownerId,
-                'num_of_searches' => optional($character)->num_of_searches ? $character->num_of_searches++ : 0,
+                'num_of_searches' => optional($character)->num_of_searches ? ++$character->num_of_searches : 1,
                 'basic' => $this->mapBasicResponseData($responses['basic']),
                 'media' => $this->mapMediaResponseData($responses['media']),
                 'equipment' => $this->mapEquipmentResponseData($responses['equipment']),
