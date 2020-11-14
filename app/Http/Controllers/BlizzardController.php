@@ -4,17 +4,14 @@ namespace App\Http\Controllers;
 
 
 use App\Services\BlizzardAuthService;
-use App\Services\CharacterService;
 
 class BlizzardController extends Controller
 {
     private BlizzardAuthService $blizzardAuthService;
-    private CharacterService $characterService;
 
-    public function __construct(BlizzardAuthService $blizzardAuthService, CharacterService $characterService)
+    public function __construct(BlizzardAuthService $blizzardAuthService)
     {
         $this->blizzardAuthService = $blizzardAuthService;
-        $this->characterService = $characterService;
     }
 
     public function code()

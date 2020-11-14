@@ -30,40 +30,43 @@ class GuildService
             'region' => $region,
         ])->first();
 
-        if ($guild) {
-            $guild->increasePopularity();
-            $guild->save();
-        } else {
+        if (
+            !$guild ||
+            $guild->updated_at->diffInSeconds() > config('blizzard.guild_min_seconds_update')
+        ) {
             $responses = $this->profileClient->getGuildInfo($region, $realmName, $guildName);
 
             $guildDocument = new GuildDocument([
                 'name' => $guildName,
                 'realm' => $realmName,
                 'region' => $region,
+                'num_of_searches' => optional($guild)->num_of_searches ? $guild->num_of_searches++ : 0,
                 'basic' => $this->mapBasicData($responses['basic']),
                 'roster' => $this->mapRosterData($responses['roster']),
             ]);
 
-            $guild = Guild::create($guildDocument->toArray());
+            $guild = Guild::updateOrCreate([
+                'name' => $guildName,
+                'realm' => $realmName,
+                'region' => $region,
+            ],
+                $guildDocument->toArray()
+            );
         }
 
         return $guild;
     }
 
-    public function getRecentlySearched()
+    private function mapBasicData(Response $response): GuildBasic
     {
-        return Guild
-            ::orderBy('updated_at', 'desc')
-            ->limit(5)
-            ->get(['name', 'region', 'realm']);
-    }
+        $basicData = json_decode($response->getBody());
 
-    public function getMostPopular()
-    {
-        return Guild
-            ::orderBy('num_of_searches', 'desc')
-            ->limit(5)
-            ->get(['name', 'region', 'realm']);
+        return new GuildBasic([
+            'achievement_points' => $basicData->achievement_points,
+            'member_count' => $basicData->member_count,
+            'created_timestamp' => $basicData->created_timestamp,
+            'faction' => $basicData->faction->name
+        ]);
     }
 
     /** @return GuildMember[] */
@@ -87,16 +90,20 @@ class GuildService
         })->toArray();
     }
 
-    private function mapBasicData(Response $response): GuildBasic
+    public function getRecentlySearched()
     {
-        $basicData = json_decode($response->getBody());
+        return Guild
+            ::orderBy('updated_at', 'desc')
+            ->limit(5)
+            ->get(['name', 'region', 'realm']);
+    }
 
-        return new GuildBasic([
-            'achievement_points' => $basicData->achievement_points,
-            'member_count' => $basicData->member_count,
-            'created_timestamp' => $basicData->created_timestamp,
-            'faction' => $basicData->faction->name
-        ]);
+    public function getMostPopular()
+    {
+        return Guild
+            ::orderBy('num_of_searches', 'desc')
+            ->limit(5)
+            ->get(['name', 'region', 'realm']);
     }
 
 }

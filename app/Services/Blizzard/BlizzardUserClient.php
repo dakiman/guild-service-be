@@ -18,18 +18,18 @@ class BlizzardUserClient {
     public function getUserInfoAndCharacters(string $token, string $region)
     {
         $promises = [
-            'oauth' => $this->getUserInfo($token, $region),
-            'characters' => $this->getUserCharacters($token, $region)
+            'oauth' => $this->getUserInfoRequest($token, $region),
+            'characters' => $this->getUserCharactersRequest($token, $region)
         ];
 
         try {
             return Promise\unwrap($promises);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             throw new BlizzardServiceException('Had issues finishing OAuth process.', $e, 500);
         }
     }
 
-    private function getUserInfo(string $token, string $region)
+    private function getUserInfoRequest(string $token, string $region)
     {
         $client = $this->buildClient($token, $region);
 
@@ -38,7 +38,7 @@ class BlizzardUserClient {
         return $client->getAsync($oauthUrl . '/oauth/userinfo');
     }
 
-    private function getUserCharacters(string $token, string $region)
+    private function getUserCharactersRequest(string $token, string $region)
     {
         $client = $this->buildClient($token, $region);
 
@@ -50,7 +50,6 @@ class BlizzardUserClient {
     private function buildClient($token, $region)
     {
         return new Client([
-//            'base_uri' => $this->oauthUrl,
             'headers' => [
                 'Authorization' => 'Bearer ' . $token
             ],
