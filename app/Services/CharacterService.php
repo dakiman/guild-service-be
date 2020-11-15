@@ -43,7 +43,7 @@ class CharacterService
                 'name' => $characterName,
                 'realm' => $realmName,
                 'region' => $region,
-                'user_id' => $ownerId,
+                'user_id' => optional($character)->owner_id ?? $ownerId,
                 'num_of_searches' => optional($character)->num_of_searches ? ++$character->num_of_searches : 1,
                 'basic' => $this->mapBasicResponseData($responses['basic']),
                 'media' => $this->mapMediaResponseData($responses['media']),
