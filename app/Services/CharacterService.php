@@ -8,6 +8,7 @@ use App\DTO\Character\CharacterDocument;
 use App\DTO\Character\Item;
 use App\DTO\Character\Media;
 use App\DTO\Character\Specialization;
+use App\DTO\Character\Talent;
 use App\Models\Character;
 use App\Services\Blizzard\BlizzardProfileClient;
 use GuzzleHttp\Psr7\Response;
@@ -61,22 +62,6 @@ class CharacterService
         }
 
         return $character;
-    }
-
-    public function getRecentlySearched()
-    {
-        return Character
-            ::orderBy('updated_at', 'desc')
-            ->limit(5)
-            ->get(['name', 'region', 'realm']);
-    }
-
-    public function getMostPopular()
-    {
-        return Character
-            ::orderBy('num_of_searches', 'desc')
-            ->limit(5)
-            ->get(['name', 'region', 'realm']);
     }
 
     private function mapBasicResponseData(Response $response): CharacterBasic
@@ -137,7 +122,8 @@ class CharacterService
             $item = new Item([
                 'id' => $equipped->item->id,
                 'itemLevel' => $equipped->level->value,
-                'quality' => $equipped->quality->name
+                'quality' => $equipped->quality->name,
+                'slot' => $equipped->slot->name
             ]);
             array_push($equipment, $item);
         }
@@ -157,7 +143,11 @@ class CharacterService
         $talents = [];
         if (!empty($activeSpec->talents)) {
             $talents = collect($activeSpec->talents)
-                ->map(fn($talent) => $talent->spell_tooltip->spell->id)
+                ->map(fn($talent) => new Talent([
+                    'id' => $talent->spell_tooltip->spell->id,
+                    'row' => $talent->tier_index,
+                    'column' => $talent->column_index
+                ]))
                 ->toArray();
         }
 

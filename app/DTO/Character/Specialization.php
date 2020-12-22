@@ -9,7 +9,7 @@ use Spatie\DataTransferObject\FlexibleDataTransferObject;
 class Specialization extends FlexibleDataTransferObject
 {
     public string $activeSpecialization;
-    /** @var array*/
+    /** @var \App\DTO\Character\Talent[] */
     public $talents;
 
 }
