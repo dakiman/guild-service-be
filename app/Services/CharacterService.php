@@ -87,6 +87,14 @@ class CharacterService
             ];
         }
 
+        if (isset($data->covenant_progress)) {
+            $result['covenant'] = [
+                'id' => $data->covenant_progress->chosen_covenant->id,
+                'name' => $data->covenant_progress->chosen_covenant->name,
+                'renown' => $data->covenant_progress->renown_level,
+            ];
+        }
+
         return new CharacterBasic($result);
     }
 
@@ -145,8 +153,8 @@ class CharacterService
             $talents = collect($activeSpec->talents)
                 ->map(fn($talent) => new Talent([
                     'id' => $talent->spell_tooltip->spell->id,
-                    'row' => $talent->tier_index,
-                    'column' => $talent->column_index
+                    'row' => $talent->tier_index ?? null,
+                    'column' => $talent->column_index ?? null
                 ]))
                 ->toArray();
         }
@@ -155,6 +163,23 @@ class CharacterService
             'activeSpecialization' => $activeSpecName,
             'talents' => $talents
         ]);
+    }
+
+
+    public function getRecentlySearched()
+    {
+        return Character
+            ::orderBy('updated_at', 'desc')
+            ->limit(5)
+            ->get(['name', 'region', 'realm']);
+    }
+
+    public function getMostPopular()
+    {
+        return Character
+            ::orderBy('num_of_searches', 'desc')
+            ->limit(5)
+            ->get(['name', 'region', 'realm']);
     }
 
 }

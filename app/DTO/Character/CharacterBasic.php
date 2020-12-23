@@ -17,4 +17,5 @@ class CharacterBasic extends FlexibleDataTransferObject
     public int $average_item_level;
     public int $equipped_item_level;
     public ?CharacterGuild $guild;
+    public ?Covenant $covenant;
 }
