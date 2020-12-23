@@ -9,6 +9,7 @@ use App\DTO\Character\Item;
 use App\DTO\Character\Media;
 use App\DTO\Character\Specialization;
 use App\DTO\Character\Talent;
+use App\Jobs\RetrieveMythicDungeonData;
 use App\Models\Character;
 use App\Models\DungeonRun;
 use App\Services\Blizzard\BlizzardProfileClient;
@@ -18,10 +19,12 @@ use Str;
 class CharacterService
 {
     private BlizzardProfileClient $profileClient;
+    private DungeonService $dungeonService;
 
-    public function __construct(BlizzardProfileClient $profileClient)
+    public function __construct(BlizzardProfileClient $profileClient, DungeonService $dungeonService)
     {
         $this->profileClient = $profileClient;
+        $this->dungeonService = $dungeonService;
     }
 
     public function getCharacter(string $region, string $realmName, string $characterName, string $ownerId = null): Character
@@ -63,7 +66,7 @@ class CharacterService
                 $characterDocument->toArray()
             );
 
-            $this->mapDungeonRuns($character);
+            RetrieveMythicDungeonData::dispatchNow($character);
         }
 
         return $character;
@@ -129,19 +132,12 @@ class CharacterService
     {
         $data = json_decode($response->getBody());
 
-        $equipment = [];
-
-        foreach ($data->equipped_items as $equipped) {
-            $item = new Item([
-                'id' => $equipped->item->id,
-                'itemLevel' => $equipped->level->value,
-                'quality' => $equipped->quality->name,
-                'slot' => $equipped->slot->name
-            ]);
-            array_push($equipment, $item);
-        }
-
-        return $equipment;
+        return array_map(fn($equipped) => new Item([
+            'id' => $equipped->item->id,
+            'itemLevel' => $equipped->level->value,
+            'quality' => $equipped->quality->name,
+            'slot' => $equipped->slot->name
+        ]), $data->equipped_items);
     }
 
     private function mapSpecializationsResponseData(Response $response): Specialization
@@ -155,19 +151,35 @@ class CharacterService
 
         $talents = [];
         if (!empty($activeSpec->talents)) {
-            $talents = collect($activeSpec->talents)
-                ->map(fn($talent) => new Talent([
-                    'id' => $talent->spell_tooltip->spell->id,
-                    'row' => $talent->tier_index ?? null,
-                    'column' => $talent->column_index ?? null
-                ]))
-                ->toArray();
+
+            $talents = array_map(fn($talent) => new Talent([
+                'id' => $talent->spell_tooltip->spell->id,
+                'row' => $talent->tier_index ?? null,
+                'column' => $talent->column_index ?? null
+            ]), $activeSpec->talents);
+
         }
 
         return new Specialization([
             'activeSpecialization' => $activeSpecName,
             'talents' => $talents
         ]);
+    }
+
+    public function getRecentlySearched()
+    {
+        return Character
+            ::orderBy('updated_at', 'desc')
+            ->limit(5)
+            ->get(['name', 'region', 'realm']);
+    }
+
+    public function getMostPopular()
+    {
+        return Character
+            ::orderBy('num_of_searches', 'desc')
+            ->limit(5)
+            ->get(['name', 'region', 'realm']);
     }
 
     private function mapDungeonRuns(Character $character)
@@ -194,22 +206,6 @@ class CharacterService
 //        ]));
 
 //        dd($character->dungeonRuns()->get());
-    }
-
-    public function getRecentlySearched()
-    {
-        return Character
-            ::orderBy('updated_at', 'desc')
-            ->limit(5)
-            ->get(['name', 'region', 'realm']);
-    }
-
-    public function getMostPopular()
-    {
-        return Character
-            ::orderBy('num_of_searches', 'desc')
-            ->limit(5)
-            ->get(['name', 'region', 'realm']);
     }
 
 }

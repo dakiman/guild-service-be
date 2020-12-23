@@ -64,6 +64,26 @@ class BlizzardProfileClient
         }
     }
 
+    /*
+    * @return array [
+    *      'best_mythics' => GuzzleHttp\Psr7\Response
+    *  ]
+    * */
+    public function getBestMythicsInfo(string $region, string $realmName, string $characterName)
+    {
+        $client = $this->buildClient($region);
+
+        $promises = [
+            'best_mythics' => $client->getAsync("/profile/wow/character/$realmName/$characterName/mythic-keystone-profile/season/5")
+        ];
+
+        try {
+            return Promise\unwrap($promises);
+        } catch (Exception $e) {
+            throw new BlizzardServiceException("Couldnt retrieve mythics data $characterName @ $realmName | $region", $e, 404);
+        }
+    }
+
     private function buildClient(string $region)
     {
         return new Client([
