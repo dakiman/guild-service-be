@@ -10,6 +10,7 @@ use App\DTO\Character\Media;
 use App\DTO\Character\Specialization;
 use App\DTO\Character\Talent;
 use App\Models\Character;
+use App\Models\DungeonRun;
 use App\Services\Blizzard\BlizzardProfileClient;
 use GuzzleHttp\Psr7\Response;
 use Str;
@@ -59,9 +60,26 @@ class CharacterService
             ],
                 $characterDocument->toArray()
             );
+
+            $this->mapDungeonRuns($character);
         }
 
-        return $character;
+        return $character->first();
+    }
+
+    private function mapDungeonRuns(Character $character) {
+        $dungeonRun = DungeonRun::create([
+            'hash' => md5(123),
+            'desc' => 'a meh run'
+        ]);
+
+        $dungeonRunBest = DungeonRun::create([
+            'hash' => md5(123),
+            'desc' => 'one of best runs'
+        ]);
+
+        $character->allMythicRuns()->attach($dungeonRun->id, ['best_run' => false]);
+        $character->bestMythicRuns()->attach($dungeonRunBest->id, ['best_run' => true]);
     }
 
     private function mapBasicResponseData(Response $response): CharacterBasic
