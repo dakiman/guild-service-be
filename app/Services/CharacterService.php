@@ -33,7 +33,9 @@ class CharacterService
             'name' => $characterName,
             'realm' => $realmName,
             'region' => $region
-        ])->first();
+        ])
+            ->with('dungeonRuns')
+            ->first();
 
         if (
             !$character ||
@@ -50,7 +52,7 @@ class CharacterService
                 'basic' => $this->mapBasicResponseData($responses['basic']),
                 'media' => $this->mapMediaResponseData($responses['media']),
                 'equipment' => $this->mapEquipmentResponseData($responses['equipment']),
-                'specialization' => $this->mapSpecializationsResponseData($responses['specialization'])
+                'specialization' => $this->mapSpecializationsResponseData($responses['specialization']),
             ]);
 
             $character = Character::updateOrCreate([
@@ -64,22 +66,7 @@ class CharacterService
             $this->mapDungeonRuns($character);
         }
 
-        return $character->first();
-    }
-
-    private function mapDungeonRuns(Character $character) {
-        $dungeonRun = DungeonRun::create([
-            'hash' => md5(123),
-            'desc' => 'a meh run'
-        ]);
-
-        $dungeonRunBest = DungeonRun::create([
-            'hash' => md5(123),
-            'desc' => 'one of best runs'
-        ]);
-
-        $character->allMythicRuns()->attach($dungeonRun->id, ['best_run' => false]);
-        $character->bestMythicRuns()->attach($dungeonRunBest->id, ['best_run' => true]);
+        return $character;
     }
 
     private function mapBasicResponseData(Response $response): CharacterBasic
@@ -183,6 +170,31 @@ class CharacterService
         ]);
     }
 
+    private function mapDungeonRuns(Character $character)
+    {
+//        $dungeonRun = DungeonRun::create([
+//            'hash' => md5(123),
+//            'desc' => 'a meh run'
+//        ]);
+//
+        $dungeonRunBest = DungeonRun::create([
+            'hash' => md5(123),
+            'desc' => 'one of best runs'
+        ]);
+
+//        return [
+//            'all_mythic_runs' => [$dungeonRun->id, $dungeonRunBest->id],
+//            'best_mythic_runs' => [$dungeonRunBest->id, ['best_run' => true]]
+//        ];
+
+        $character->dungeonRuns()->create($dungeonRunBest->toArray());
+//        $character->dungeonRuns()->attach(new DungeonRun([
+//            'hash' => md5(time()),
+//            'desc' => 'one of best runs'
+//        ]));
+
+//        dd($character->dungeonRuns()->get());
+    }
 
     public function getRecentlySearched()
     {

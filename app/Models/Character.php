@@ -20,14 +20,9 @@ class Character extends Model
         return $this->hasOne(User::class);
     }
 
-    public function bestMythicRuns()
+    public function dungeonRuns()
     {
-        return $this->belongsToMany(DungeonRun::class, null, 'players', 'best_mythic_runs')->wherePivot('best_run', true);
-    }
-
-    public function allMythicRuns()
-    {
-        return $this->belongsToMany(DungeonRun::class, null, 'players', 'all_mythic_runs');
+        return $this->embedsMany(DungeonRun::class, 'dungeon_runs');
     }
 
 }

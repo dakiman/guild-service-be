@@ -10,7 +10,7 @@ class DungeonRun extends Model
 
     public function players()
     {
-        return $this->belongsToMany(Character::class);
+        return $this->embedsMany(Character::class);
     }
 
 }
