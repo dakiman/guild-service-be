@@ -9,6 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Log;
 
 class RetrieveMythicDungeonData implements ShouldQueue
 {
@@ -23,6 +24,10 @@ class RetrieveMythicDungeonData implements ShouldQueue
 
     public function handle(DungeonService $dungeonService)
     {
-        $dungeonService->getMythicDungeonData($this->character);
+        try {
+            $dungeonService->getMythicDungeonData($this->character);
+        } catch (\Exception $e) {
+            Log::error('Exception encountered while retrieving Mythic data', ['realm' => $this->character->realm, 'character' => $this->character->name, 'region' => $this->character->region, 'exception' => $e->getMessage()]);
+        }
     }
 }

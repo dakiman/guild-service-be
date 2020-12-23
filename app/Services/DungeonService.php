@@ -4,6 +4,7 @@
 namespace App\Services;
 
 
+use App\Jobs\RetrieveCharacterData;
 use App\Models\Character;
 use App\Models\DungeonRun;
 use App\Services\Blizzard\BlizzardProfileClient;
@@ -17,7 +18,8 @@ class DungeonService
         $this->profileClient = $profileClient;
     }
 
-    public function getMythicDungeonData(Character $character)
+    public function
+    getMythicDungeonData(Character $character)
     {
         $responses = $this->profileClient->getBestMythicsInfo($character->region, $character->realm, $character->name);
 
@@ -30,18 +32,22 @@ class DungeonService
         $data = json_decode($response->getBody());
 
         $season = $data->season->id;
-
-        foreach ($data->best_runs as $dungeonRun) {
+        foreach ($data->best_runs as $runData) {
             $dungeonRun = DungeonRun::firstOrCreate([
                 'season' => $season,
-                'completedTimestamp' => $dungeonRun->completed_timestamp,
-                'duration' => $dungeonRun->duration,
-                'keystoneLevel' => $dungeonRun->keystone_level,
-                'affixes' => $this->parseAffixes($dungeonRun->keystone_affixes),
+                'dungeon' => [
+                    'name' => $runData->dungeon->name,
+                    'id' => $runData->dungeon->id
+                ],
+                'onTime' => $runData->is_completed_within_time,
+                'completedTimestamp' => $runData->completed_timestamp,
+                'duration' => $runData->duration,
+                'keystoneLevel' => $runData->keystone_level,
+                'affixes' => $this->parseAffixes($runData->keystone_affixes),
+                'team' => $this->parseTeam($runData->members, $character)
             ]);
 
-            if($dungeonRun->wasRecentlyCreated) {
-                $this->parseMembers($dungeonRun->members, $character);
+            if ($dungeonRun->wasRecentlyCreated) {
                 $character->dungeonRuns()->create($dungeonRun->toArray());
             }
 
@@ -54,10 +60,25 @@ class DungeonService
     }
 
     /*TODO Create character jobs*/
-    private function parseMembers($members, $character)
+    private function parseTeam($members, $character)
     {
+        $team = [];
+        foreach ($members as $member) {
+            RetrieveCharacterData::dispatch($character->region, $member->character->realm->slug, $member->character->name);
 
-//        return array_map(fn ($member) => ['name' => $member->character->name, 'realm' => $member->character->realm->slug], $members);
+            array_push($team, [
+                'name' => $member->character->name,
+                'realm' => $member->character->realm->slug,
+                'region' => $character->region,
+                'spec' => [
+                    'id' => $member->specialization->id,
+                    'name' => $member->specialization->name,
+                ],
+                'equippedItemLevel' => $member->equipped_item_level
+            ]);
+        }
+
+        return $team;
     }
 
 

@@ -30,7 +30,8 @@ class CharacterService
     public function getCharacter(string $region, string $realmName, string $characterName, string $ownerId = null): Character
     {
         $realmName = Str::slug($realmName);
-        $characterName = strtolower($characterName);
+        $characterName = mb_strtolower($characterName);
+
 
         $character = Character::where([
             'name' => $characterName,
@@ -66,7 +67,7 @@ class CharacterService
                 $characterDocument->toArray()
             );
 
-            RetrieveMythicDungeonData::dispatchNow($character);
+            RetrieveMythicDungeonData::dispatch($character);
         }
 
         return $character;
@@ -88,6 +89,7 @@ class CharacterService
         ];
 
         if (isset($data->guild)) {
+
             $result['guild'] = [
                 'name' => $data->guild->name,
                 'realm' => $data->guild->realm->name,
@@ -180,32 +182,6 @@ class CharacterService
             ::orderBy('num_of_searches', 'desc')
             ->limit(5)
             ->get(['name', 'region', 'realm']);
-    }
-
-    private function mapDungeonRuns(Character $character)
-    {
-//        $dungeonRun = DungeonRun::create([
-//            'hash' => md5(123),
-//            'desc' => 'a meh run'
-//        ]);
-//
-        $dungeonRunBest = DungeonRun::create([
-            'hash' => md5(123),
-            'desc' => 'one of best runs'
-        ]);
-
-//        return [
-//            'all_mythic_runs' => [$dungeonRun->id, $dungeonRunBest->id],
-//            'best_mythic_runs' => [$dungeonRunBest->id, ['best_run' => true]]
-//        ];
-
-        $character->dungeonRuns()->create($dungeonRunBest->toArray());
-//        $character->dungeonRuns()->attach(new DungeonRun([
-//            'hash' => md5(time()),
-//            'desc' => 'one of best runs'
-//        ]));
-
-//        dd($character->dungeonRuns()->get());
     }
 
 }
