@@ -3,12 +3,12 @@
 
 namespace App\Services;
 
-use App\DTO\Character\BlizzardCharacterData;
 use App\DTO\Character\CharacterBasic;
 use App\DTO\Character\CharacterDocument;
 use App\DTO\Character\Item;
 use App\DTO\Character\Media;
 use App\DTO\Character\Specialization;
+use App\DTO\Character\Talent;
 use App\Models\Character;
 use App\Services\Blizzard\BlizzardProfileClient;
 use GuzzleHttp\Psr7\Response;
@@ -44,8 +44,8 @@ class CharacterService
                 'name' => $characterName,
                 'realm' => $realmName,
                 'region' => $region,
-                'user_id' => $ownerId,
-                'num_of_searches' => optional($character)->num_of_searches ? $character->num_of_searches++ : 0,
+                'user_id' => optional($character)->user_id ? $character->user_id : $ownerId,
+                'num_of_searches' => optional($character)->num_of_searches ? ++$character->num_of_searches : 1,
                 'basic' => $this->mapBasicResponseData($responses['basic']),
                 'media' => $this->mapMediaResponseData($responses['media']),
                 'equipment' => $this->mapEquipmentResponseData($responses['equipment']),
@@ -62,22 +62,6 @@ class CharacterService
         }
 
         return $character;
-    }
-
-    public function getRecentlySearched()
-    {
-        return Character
-            ::orderBy('updated_at', 'desc')
-            ->limit(5)
-            ->get(['name', 'region', 'realm']);
-    }
-
-    public function getMostPopular()
-    {
-        return Character
-            ::orderBy('num_of_searches', 'desc')
-            ->limit(5)
-            ->get(['name', 'region', 'realm']);
     }
 
     private function mapBasicResponseData(Response $response): CharacterBasic
@@ -100,6 +84,14 @@ class CharacterService
                 'name' => $data->guild->name,
                 'realm' => $data->guild->realm->name,
                 'faction' => $data->guild->faction->name ?? null
+            ];
+        }
+
+        if (isset($data->covenant_progress)) {
+            $result['covenant'] = [
+                'id' => $data->covenant_progress->chosen_covenant->id,
+                'name' => $data->covenant_progress->chosen_covenant->name,
+                'renown' => $data->covenant_progress->renown_level,
             ];
         }
 
@@ -138,7 +130,8 @@ class CharacterService
             $item = new Item([
                 'id' => $equipped->item->id,
                 'itemLevel' => $equipped->level->value,
-                'quality' => $equipped->quality->name
+                'quality' => $equipped->quality->name,
+                'slot' => $equipped->slot->name
             ]);
             array_push($equipment, $item);
         }
@@ -158,7 +151,11 @@ class CharacterService
         $talents = [];
         if (!empty($activeSpec->talents)) {
             $talents = collect($activeSpec->talents)
-                ->map(fn($talent) => $talent->spell_tooltip->spell->id)
+                ->map(fn($talent) => new Talent([
+                    'id' => $talent->spell_tooltip->spell->id,
+                    'row' => $talent->tier_index ?? null,
+                    'column' => $talent->column_index ?? null
+                ]))
                 ->toArray();
         }
 
@@ -166,6 +163,23 @@ class CharacterService
             'activeSpecialization' => $activeSpecName,
             'talents' => $talents
         ]);
+    }
+
+
+    public function getRecentlySearched()
+    {
+        return Character
+            ::orderBy('updated_at', 'desc')
+            ->limit(5)
+            ->get(['name', 'region', 'realm']);
+    }
+
+    public function getMostPopular()
+    {
+        return Character
+            ::orderBy('num_of_searches', 'desc')
+            ->limit(5)
+            ->get(['name', 'region', 'realm']);
     }
 
 }

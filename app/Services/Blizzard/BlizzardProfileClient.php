@@ -6,6 +6,7 @@ use App\Exceptions\BlizzardServiceException;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Promise;
+use GuzzleHttp\Utils;
 
 class BlizzardProfileClient
 {
