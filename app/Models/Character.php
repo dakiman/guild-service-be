@@ -15,6 +15,11 @@ class Character extends Model
         'recruitment' => 'boolean'
     ];
 
+    /** Make Carbon work w/ mongo (specify which fields)*/
+    protected $dates = [
+        'mythics_synced_at',
+    ];
+
     public function owner()
     {
         return $this->hasOne(User::class);

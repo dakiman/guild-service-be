@@ -47,7 +47,7 @@ class CharacterService
         ) {
             $responses = $this->profileClient->getCharacterInfo($region, $realmName, $characterName);
 
-            $characterDocument = new CharacterDocument([
+            $characterDocument = [
                 'name' => $characterName,
                 'realm' => $realmName,
                 'region' => $region,
@@ -57,17 +57,16 @@ class CharacterService
                 'media' => $this->mapMediaResponseData($responses['media']),
                 'equipment' => $this->mapEquipmentResponseData($responses['equipment']),
                 'specialization' => $this->mapSpecializationsResponseData($responses['specialization']),
-            ]);
+            ];
 
             $character = Character::updateOrCreate([
                 'name' => $characterName,
                 'realm' => $realmName,
                 'region' => $region
             ],
-                $characterDocument->toArray()
+                $characterDocument
             );
 
-            RetrieveMythicDungeonData::dispatch($character);
         }
 
         return $character;
@@ -89,7 +88,6 @@ class CharacterService
         ];
 
         if (isset($data->guild)) {
-
             $result['guild'] = [
                 'name' => $data->guild->name,
                 'realm' => $data->guild->realm->name,

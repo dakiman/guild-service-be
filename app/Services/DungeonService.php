@@ -4,10 +4,10 @@
 namespace App\Services;
 
 
-use App\Jobs\RetrieveCharacterData;
 use App\Models\Character;
 use App\Models\DungeonRun;
 use App\Services\Blizzard\BlizzardProfileClient;
+use Log;
 
 class DungeonService
 {
@@ -18,8 +18,7 @@ class DungeonService
         $this->profileClient = $profileClient;
     }
 
-    public function
-    getMythicDungeonData(Character $character)
+    public function getMythicDungeonData(Character $character)
     {
         $responses = $this->profileClient->getBestMythicsInfo($character->region, $character->realm, $character->name);
 
@@ -32,6 +31,7 @@ class DungeonService
         $data = json_decode($response->getBody());
 
         $season = $data->season->id;
+
         foreach ($data->best_runs as $runData) {
             $dungeonRun = DungeonRun::firstOrCreate([
                 'season' => $season,
@@ -47,8 +47,20 @@ class DungeonService
                 'team' => $this->parseTeam($runData->members, $character)
             ]);
 
+            /*Check if the firstOrCreate method returned an old instance or created a new one*/
             if ($dungeonRun->wasRecentlyCreated) {
-                $character->dungeonRuns()->create($dungeonRun->toArray());
+                $runs = $character->dungeon_runs;
+
+                if(!$runs) $runs = [];
+
+                if (!array_key_exists($season, $runs)) $runs[$season] = [];
+
+                if (!array_key_exists($dungeonRun->dungeon['name'], $runs[$season])) $runs[$season][$dungeonRun->dungeon['name']] = [];
+
+
+                array_push($runs[$season][$dungeonRun->dungeon['name']], $dungeonRun->toArray());
+                $character->dungeon_runs = $runs;
+                $character->save();
             }
 
         }
@@ -64,7 +76,7 @@ class DungeonService
     {
         $team = [];
         foreach ($members as $member) {
-            RetrieveCharacterData::dispatch($character->region, $member->character->realm->slug, $member->character->name);
+//            RetrieveCharacterData::dispatch($character->region, $member->character->realm->slug, $member->character->name);
 
             array_push($team, [
                 'name' => $member->character->name,

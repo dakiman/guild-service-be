@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\RetrieveMythicDungeonData;
 use App\Models\Character;
 use App\Services\CharacterService;
 use Gate;
@@ -17,8 +18,15 @@ class CharacterController extends Controller
 
     public function character(string $region, string $realm, string $characterName)
     {
+        $character = $this->characterService->getCharacter($region, $realm, $characterName);
+
+        if(!isset($character->mythics_synced_at) ||
+            $character->mythics_synced_at->diffInSeconds() > config('blizzard.character_min_seconds_update')) {
+            RetrieveMythicDungeonData::dispatch($character);
+        }
+
         return response()->json([
-            'character' => $this->characterService->getCharacter($region, $realm, $characterName)
+            'character' => $character
         ]);
     }
 
