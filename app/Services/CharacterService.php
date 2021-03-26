@@ -4,14 +4,11 @@
 namespace App\Services;
 
 use App\DTO\Character\CharacterBasic;
-use App\DTO\Character\CharacterDocument;
 use App\DTO\Character\Item;
 use App\DTO\Character\Media;
 use App\DTO\Character\Specialization;
 use App\DTO\Character\Talent;
-use App\Jobs\RetrieveMythicDungeonData;
 use App\Models\Character;
-use App\Models\DungeonRun;
 use App\Services\Blizzard\BlizzardProfileClient;
 use GuzzleHttp\Psr7\Response;
 use Str;
@@ -19,15 +16,13 @@ use Str;
 class CharacterService
 {
     private BlizzardProfileClient $profileClient;
-    private DungeonService $dungeonService;
 
-    public function __construct(BlizzardProfileClient $profileClient, DungeonService $dungeonService)
+    public function __construct(BlizzardProfileClient $profileClient)
     {
         $this->profileClient = $profileClient;
-        $this->dungeonService = $dungeonService;
     }
 
-    public function getCharacter(string $region, string $realmName, string $characterName, string $ownerId = null): Character
+    public function getCharacter(string $region, string $realmName, string $characterName): Character
     {
         $realmName = Str::slug($realmName);
         $characterName = mb_strtolower($characterName);
@@ -37,9 +32,7 @@ class CharacterService
             'name' => $characterName,
             'realm' => $realmName,
             'region' => $region
-        ])
-            ->with('dungeonRuns')
-            ->first();
+        ])->first();
 
         if (
             !$character ||
@@ -51,7 +44,6 @@ class CharacterService
                 'name' => $characterName,
                 'realm' => $realmName,
                 'region' => $region,
-                'user_id' => optional($character)->user_id ? $character->user_id : $ownerId,
                 'num_of_searches' => optional($character)->num_of_searches ? ++$character->num_of_searches : 1,
                 'basic' => $this->mapBasicResponseData($responses['basic']),
                 'media' => $this->mapMediaResponseData($responses['media']),

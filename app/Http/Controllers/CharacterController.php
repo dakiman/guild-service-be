@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\RetrieveGuildRoster;
 use App\Jobs\RetrieveMythicDungeonData;
 use App\Models\Character;
 use App\Services\CharacterService;

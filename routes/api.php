@@ -27,7 +27,7 @@ Route::post('/logout', 'Auth\AuthController@logout');
 Route::post('/password/forgot', 'Auth\ForgotPasswordController')->name('password.forget');
 Route::post('/password/reset', 'Auth\ResetPasswordController@reset')->name('password.reset');
 
-Route::post('/{region}/blizzard-oauth', 'BlizzardController@code');
+Route::post('/{region}/blizzard-oauth', 'BlizzardController@code')->middleware('auth');
 
 //Route::get('/test', function () {
 //    dd(App\Models\Character::where('blizzard_data.basic.level', '>', 45)->get()->count());

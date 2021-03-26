@@ -4,6 +4,7 @@
 namespace App\Services;
 
 use App\Exceptions\ApiException;
+use App\Jobs\RetrieveCharacterData;
 use App\Services\Blizzard\BlizzardAuthClient;
 use App\Services\Blizzard\BlizzardUserClient;
 use GuzzleHttp\Psr7\Response;
@@ -34,7 +35,7 @@ class BlizzardAuthService
         return $token;
     }
 
-    public function syncBattleNetDetails(string $region, string $code, string $redirectUri)
+    public function syncBattleNetDetails(string $region, string $code, string $redirectUri, $user)
     {
         $authResponse = $this->authClient->getOauthAccessToken($region, $code, $redirectUri);
 
@@ -42,38 +43,25 @@ class BlizzardAuthService
 
         $responses = $this->userClient->getUserInfoAndCharacters($token, $region);
 
-        $this->saveOauthDetails($responses['oauth'], $region);
-        $this->retrieveCharactersForAccount($responses['characters'], $region);
+        $this->saveOauthDetails($responses['oauth'], $region, $user);
+        $this->retrieveCharactersForAccount($responses['characters'], $region, $user);
     }
 
-    private function retrieveCharactersForAccount(Response $response, $region)
+    private function retrieveCharactersForAccount(Response $response, $region, $user)
     {
         $data = json_decode($response->getBody());
         $characters = $data->wow_accounts[0]->characters;
 
-        $savedCharacters = [];
-        $ownerId = auth()->user()->id;
-
         foreach ($characters as $character) {
-            try {
-                $singleCharacter = app(CharacterService::class)->getCharacter(
-                    $region, $character->realm->slug, $character->name, $ownerId
-                );
-
-                array_push($savedCharacters, $singleCharacter);
-            } catch (ApiException $e) {
-                Log::error('Exception while retrieving characters for user', ['exception_thrown' => $e->getMessage(), 'user' => auth()->user()->toArray()]);
-            }
+            Log::info('user', [$user]);
+            RetrieveCharacterData::dispatch($region, $character->realm->slug, $character->name, $user->id);
         }
-
-        return $savedCharacters;
     }
 
-    private function saveOauthDetails(Response $response, $region): void
+    private function saveOauthDetails(Response $response, $region, $user): void
     {
         $data = json_decode($response->getBody());
 
-        $user = auth()->user();
         $user->bnet_sync_at = now();
         $user->bnet_id = $data->id;
         $user->bnet_tag = $data->battletag;

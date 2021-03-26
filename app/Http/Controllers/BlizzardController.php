@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 
+use App\Jobs\SyncBnetData;
 use App\Services\BlizzardAuthService;
 
 class BlizzardController extends Controller
@@ -21,12 +22,13 @@ class BlizzardController extends Controller
             'redirectUri' => 'required'
         ]);
 
-        $this->blizzardAuthService->syncBattleNetDetails(
+        SyncBnetData::dispatch(
             request('region'),
             request('code'),
-            request('redirectUri')
+            request('redirectUri'),
+            auth()->user()
         );
 
-        return response(['message' => 'Successfully synced Battle.net data!'], 200);
+        return response(['message' => 'Sync job dispatched!'], 202);
     }
 }

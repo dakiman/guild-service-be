@@ -54,7 +54,6 @@ class GuildService
                 $guildDocument->toArray()
             );
 
-            RetrieveGuildRoster::dispatch($guild);
         }
 
         return $guild;

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\RetrieveGuildRoster;
 use App\Services\GuildService;
 
 class GuildController extends Controller
@@ -15,8 +16,15 @@ class GuildController extends Controller
 
     public function guild(string $region, string $realm, string $guildName)
     {
+        $guild = $this->guildService->getGuild($region, $realm, $guildName);
+
+        if(!isset($guild->roster_synced_at) ||
+            $guild->roster_synced_at->diffInSeconds() > config('blizzard.guild_min_seconds_update')) {
+            RetrieveGuildRoster::dispatch($guild);
+        }
+
         return response()->json([
-            'guild' => $this->guildService->getGuild($region, $realm, $guildName)
+            'guild' => $guild
         ]);
     }
 

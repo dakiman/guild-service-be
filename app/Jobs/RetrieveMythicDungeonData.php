@@ -26,8 +26,6 @@ class RetrieveMythicDungeonData implements ShouldQueue
     {
         try {
             $dungeonService->getMythicDungeonData($this->character);
-            $this->character->mythics_synced_at = now()->toDateTimeString();
-            $this->character->save();
         } catch (\Exception $e) {
             Log::error('Exception encountered while retrieving Mythic data', ['realm' => $this->character->realm, 'character' => $this->character->name, 'region' => $this->character->region, 'exception' => $e->getMessage()]);
         }
