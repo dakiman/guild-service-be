@@ -2,18 +2,18 @@
 
 namespace App\Jobs;
 
-use App\Models\Guild;
 use App\Services\CharacterService;
 use App\Services\GuildService;
 use Exception;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Log;
 
-class RetrieveCharacterData implements ShouldQueue
+class RetrieveCharacterData implements ShouldQueue, ShouldBeUnique
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -30,30 +30,32 @@ class RetrieveCharacterData implements ShouldQueue
         $this->ownerId = $ownerId;
     }
 
+    public function uniqueId()
+    {
+        return $this->region . ' ' . $this->realmName . ' ' . $this->characterName;
+    }
+
     public function handle(CharacterService $characterService, GuildService $guildService)
     {
         try {
             $character = $characterService->getCharacter($this->region, $this->realmName, $this->characterName);
 
-            if($this->ownerId) {
+            if ($this->ownerId) {
                 $character->user_id = $this->ownerId;
                 $character->save();
             }
 
-            if(isset($character->basic->guild) && $character->basic->guild != null) {
+            if (isset($character->basic->guild) && $character->basic->guild != null) {
                 $guild = $guildService->getGuild(
                     $character->region,
                     $character->basic->guild->realm,
                     $character->basic->guild->name,
                 );
 
-                if(!isset($guild->roster_synced_at) ||
-                    $guild->roster_synced_at->diffInSeconds() > config('blizzard.guild_min_seconds_update')) {
-                    RetrieveGuildRoster::dispatch($guild);
-                }
+                RetrieveGuildRoster::dispatch($guild);
             }
 
-            
+
             RetrieveMythicDungeonData::dispatch($character);
 
         } catch (Exception $e) {

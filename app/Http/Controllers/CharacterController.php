@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\RetrieveGuildRoster;
 use App\Jobs\RetrieveMythicDungeonData;
 use App\Models\Character;
 use App\Services\CharacterService;
@@ -21,7 +20,7 @@ class CharacterController extends Controller
     {
         $character = $this->characterService->getCharacter($region, $realm, $characterName);
 
-        if(!isset($character->mythics_synced_at) ||
+        if(isset($character->mythics_synced_at) &&
             $character->mythics_synced_at->diffInSeconds() > config('blizzard.character_min_seconds_update')) {
             RetrieveMythicDungeonData::dispatch($character);
         }

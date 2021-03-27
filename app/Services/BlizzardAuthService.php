@@ -3,7 +3,6 @@
 
 namespace App\Services;
 
-use App\Exceptions\ApiException;
 use App\Jobs\RetrieveCharacterData;
 use App\Services\Blizzard\BlizzardAuthClient;
 use App\Services\Blizzard\BlizzardUserClient;

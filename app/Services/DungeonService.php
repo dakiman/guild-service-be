@@ -5,7 +5,6 @@ namespace App\Services;
 
 
 use App\Jobs\RetrieveCharacterData;
-use App\Jobs\RetrieveMythicDungeonData;
 use App\Models\Character;
 use App\Models\DungeonRun;
 use App\Services\Blizzard\BlizzardProfileClient;

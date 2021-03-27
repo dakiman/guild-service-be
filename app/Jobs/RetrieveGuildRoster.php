@@ -3,15 +3,15 @@
 namespace App\Jobs;
 
 use App\Models\Guild;
-use App\Services\CharacterService;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
 //TODO Implement ShouldBeUnique
-class RetrieveGuildRoster implements ShouldQueue
+class RetrieveGuildRoster implements ShouldQueue, ShouldBeUnique
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -22,9 +22,14 @@ class RetrieveGuildRoster implements ShouldQueue
         $this->guild = $guild;
     }
 
+    public function uniqueId()
+    {
+        return $this->guild->region . ' ' . $this->guild->realm . ' ' . $this->guild->name;
+    }
+
     public function handle()
     {
-        if(!isset($this->guild->roster_synced_at) ||
+        if(isset($this->guild->roster_synced_at) &&
             $this->guild->roster_synced_at->diffInSeconds() > config('blizzard.guild_min_seconds_update')) {
             \Log::info("Guild already synced...");
             return;

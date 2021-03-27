@@ -27,7 +27,6 @@ class CharacterService
         $realmName = Str::slug($realmName);
         $characterName = mb_strtolower($characterName);
 
-
         $character = Character::where([
             'name' => $characterName,
             'realm' => $realmName,
