@@ -111,7 +111,7 @@ class DungeonService
                 $character->dungeon_runs = $runs;
             }
 
-            if(!isset($character->mythics_synced_at) ||
+            if(isset($character->mythics_synced_at) &&
                 $character->mythics_synced_at->diffInSeconds() > config('blizzard.character_min_seconds_update')) {
                 RetrieveCharacterData::dispatch($teamMember['region'], $teamMember['realm'], $teamMember['name']);
             }
