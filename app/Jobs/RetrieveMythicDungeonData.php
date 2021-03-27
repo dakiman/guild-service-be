@@ -45,7 +45,7 @@ class RetrieveMythicDungeonData implements ShouldQueue, ShouldBeUnique
         try {
             $dungeonService->getMythicDungeonData($this->character);
         } catch (\Exception $e) {
-            Log::error('Exception encountered while retrieving Mythic data', ['realm' => $this->character->realm, 'character' => $this->character->name, 'region' => $this->character->region, 'exception' => $e->getMessage()]);
+            Log::error('Exception encountered while retrieving Mythic data', ['realm' => $this->character->realm, 'character' => $this->character->name, 'region' => $this->character->region, 'exception' => $e->getTrace()[0]]);
         }
     }
 }
