@@ -17,14 +17,27 @@ class RetrieveGuildRoster implements ShouldQueue, ShouldBeUnique
 
     private Guild $guild;
 
+
+    /**
+     * The number of seconds after which the job's unique lock will be released.
+     *
+     * @var int
+     */
+    public $uniqueFor = 1200;
+
     public function __construct(Guild $guild)
     {
         $this->guild = $guild;
     }
 
+    /**
+     * The unique ID of the job.
+     *
+     * @return string
+     */
     public function uniqueId()
     {
-        return $this->guild->region . ' ' . $this->guild->realm . ' ' . $this->guild->name;
+        return $this->guild->id;
     }
 
     public function handle()

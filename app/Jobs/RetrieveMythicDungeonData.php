@@ -23,9 +23,21 @@ class RetrieveMythicDungeonData implements ShouldQueue, ShouldBeUnique
         $this->character = $character;
     }
 
+    /**
+     * The number of seconds after which the job's unique lock will be released.
+     *
+     * @var int
+     */
+    public $uniqueFor = 1200;
+
+    /**
+     * The unique ID of the job.
+     *
+     * @return string
+     */
     public function uniqueId()
     {
-        return $this->character->region . ' ' . $this->character->realm . ' ' . $this->character->name;
+        return $this->character->id;
     }
 
     public function handle(DungeonService $dungeonService)

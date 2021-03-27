@@ -8,6 +8,7 @@ use App\Jobs\RetrieveCharacterData;
 use App\Models\Character;
 use App\Models\DungeonRun;
 use App\Services\Blizzard\BlizzardProfileClient;
+use Exception;
 use Log;
 
 class DungeonService
@@ -63,11 +64,6 @@ class DungeonService
         }
     }
 
-    private function parseAffixes($affixes)
-    {
-        return array_map(fn($affix) => ['name' => $affix->name, 'id' => $affix->id], $affixes);
-    }
-
     private function parseTeam($members, $character)
     {
         $team = [];
@@ -87,34 +83,36 @@ class DungeonService
         return $team;
     }
 
+    private function parseAffixes($affixes)
+    {
+        return array_map(fn($affix) => ['name' => $affix->name, 'id' => $affix->id], $affixes);
+    }
+
     private function addDungeonToTeam($dungeonRun, array $team)
     {
-        foreach($team as $teamMember) {
+        foreach ($team as $teamMember) {
             try {
                 $character = $this->characterService->getCharacter($teamMember['region'], $teamMember['realm'], $teamMember['name']);
-            } catch (\Exception $e) {
-                Log::error('Error while retrieving character from Mythic run', ['member' => $teamMember, 'run' => $dungeonRun]);
+            } catch (Exception $e) {
+                Log::error('Error while retrieving character from Mythic run', ['member' => $teamMember['name'] . ' ' . $teamMember['realm'], 'run' => $dungeonRun->id, 'exception' => $e]);
                 continue;
             }
 
             $runs = $character->dungeon_runs;
 
-            if(!$runs) $runs = [];
+            if (!$runs) $runs = [];
 
             if (!array_key_exists($dungeonRun->season, $runs)) $runs[$dungeonRun->season] = [];
 
             if (!array_key_exists($dungeonRun->dungeon['name'], $runs[$dungeonRun->season])) $runs[$dungeonRun->season][$dungeonRun->dungeon['name']] = [];
 
             /*If the dungeon isnt already there*/
-            if(in_array($dungeonRun->toArray(), $runs[$dungeonRun->season][$dungeonRun->dungeon['name']])) {
+            if (in_array($dungeonRun->toArray(), $runs[$dungeonRun->season][$dungeonRun->dungeon['name']])) {
                 array_push($runs[$dungeonRun->season][$dungeonRun->dungeon['name']], $dungeonRun->toArray());
                 $character->dungeon_runs = $runs;
             }
 
-            if(isset($character->mythics_synced_at) &&
-                $character->mythics_synced_at->diffInSeconds() > config('blizzard.character_min_seconds_update')) {
-                RetrieveCharacterData::dispatch($teamMember['region'], $teamMember['realm'], $teamMember['name']);
-            }
+            RetrieveCharacterData::dispatch($teamMember['region'], $teamMember['realm'], $teamMember['name']);
 
             $character->save();
         }

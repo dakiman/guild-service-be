@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Jobs\RetrieveGuildRoster;
+use App\Jobs\RetrieveMythicDungeonData;
 use App\Models\Character;
 use App\Exceptions\BlizzardServiceException;
 use App\Models\Guild;
@@ -27,7 +28,7 @@ class DungeonTest extends TestCase
     /** @test */
     public function getTest()
     {
-        RetrieveGuildRoster::dispatch(Guild::first());
+        RetrieveMythicDungeonData::dispatch(Character::first());
     }
 
     /**

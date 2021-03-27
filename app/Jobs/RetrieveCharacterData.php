@@ -22,6 +22,13 @@ class RetrieveCharacterData implements ShouldQueue, ShouldBeUnique
     private string $characterName;
     private $ownerId;
 
+    /**
+     * The number of seconds after which the job's unique lock will be released.
+     *
+     * @var int
+     */
+    public $uniqueFor = 1200;
+
     public function __construct(string $region, string $realmName, string $characterName, $ownerId = null)
     {
         $this->region = $region;
@@ -30,6 +37,11 @@ class RetrieveCharacterData implements ShouldQueue, ShouldBeUnique
         $this->ownerId = $ownerId;
     }
 
+    /**
+     * The unique ID of the job.
+     *
+     * @return string
+     */
     public function uniqueId()
     {
         return $this->region . ' ' . $this->realmName . ' ' . $this->characterName;
@@ -55,9 +67,7 @@ class RetrieveCharacterData implements ShouldQueue, ShouldBeUnique
                 RetrieveGuildRoster::dispatch($guild);
             }
 
-
             RetrieveMythicDungeonData::dispatch($character);
-
         } catch (Exception $e) {
             Log::error('Exception encountered while retrieving Character data', ['realm' => $this->realmName, 'character' => $this->characterName, 'region' => $this->region, 'exception' => $e->getMessage()]);
         }
