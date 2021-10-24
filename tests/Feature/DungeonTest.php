@@ -22,7 +22,7 @@ class DungeonTest extends TestCase
     {
        $dungeonService = app(DungeonService::class);
        $character = Character::first();
-       $dungeonService->getMythicDungeonData($character);
+       $dungeonService->syncMythicDungeonData($character);
     }
 
     /** @test */

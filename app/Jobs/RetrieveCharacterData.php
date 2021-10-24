@@ -44,7 +44,7 @@ class RetrieveCharacterData implements ShouldQueue, ShouldBeUnique
      */
     public function uniqueId()
     {
-        return $this->region . ' ' . $this->realmName . ' ' . $this->characterName;
+        return $this->region . '_' . $this->realmName . '_' . $this->characterName;
     }
 
     public function handle(CharacterService $characterService, GuildService $guildService)
@@ -58,16 +58,12 @@ class RetrieveCharacterData implements ShouldQueue, ShouldBeUnique
             }
 
             if (isset($character->basic->guild) && $character->basic->guild != null) {
-                $guild = $guildService->getGuild(
+                $guildService->getGuild(
                     $character->region,
                     $character->basic->guild->realm,
                     $character->basic->guild->name,
                 );
-
-                RetrieveGuildRoster::dispatch($guild);
             }
-
-            RetrieveMythicDungeonData::dispatch($character);
         } catch (Exception $e) {
             Log::error('Exception encountered while retrieving Character data', ['realm' => $this->realmName, 'character' => $this->characterName, 'region' => $this->region, 'exception' => $e->getTrace()[0]]);
         }

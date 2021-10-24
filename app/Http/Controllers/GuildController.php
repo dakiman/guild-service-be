@@ -18,11 +18,6 @@ class GuildController extends Controller
     {
         $guild = $this->guildService->getGuild($region, $realm, $guildName);
 
-        if(!isset($guild->roster_synced_at) ||
-            $guild->roster_synced_at->diffInSeconds() > config('blizzard.guild_min_seconds_update')) {
-            RetrieveGuildRoster::dispatch($guild);
-        }
-
         return response()->json([
             'guild' => $guild
         ]);

@@ -42,12 +42,6 @@ class RetrieveGuildRoster implements ShouldQueue, ShouldBeUnique
 
     public function handle()
     {
-        if(isset($this->guild->roster_synced_at) &&
-            $this->guild->roster_synced_at->diffInSeconds() > config('blizzard.guild_min_seconds_update')) {
-            \Log::info("Guild already synced...");
-            return;
-        }
-
         $this->guild->roster_synced_at = now()->toDateTimeString();;
         $this->guild->save();
 

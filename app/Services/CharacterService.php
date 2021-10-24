@@ -8,6 +8,7 @@ use App\DTO\Character\Item;
 use App\DTO\Character\Media;
 use App\DTO\Character\Specialization;
 use App\DTO\Character\Talent;
+use App\Jobs\RetrieveMythicDungeonData;
 use App\Models\Character;
 use App\Services\Blizzard\BlizzardProfileClient;
 use GuzzleHttp\Psr7\Response;
@@ -58,6 +59,11 @@ class CharacterService
                 $characterDocument
             );
 
+        }
+
+        if(!isset($character->mythics_synced_at) ||
+            $character->mythics_synced_at->diffInSeconds() > config('blizzard.character_min_seconds_update')) {
+            RetrieveMythicDungeonData::dispatch($character);
         }
 
         return $character;

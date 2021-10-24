@@ -22,7 +22,7 @@ class DungeonService
         $this->characterService = $characterService;
     }
 
-    public function getMythicDungeonData(Character $character)
+    public function syncMythicDungeonData(Character $character)
     {
         $responses = $this->profileClient->getBestMythicsInfo($character->region, $character->realm, $character->name);
 
